@@ -6,14 +6,14 @@ ECHO Building...
 make clean
 make
 rmdir /Q /S build
-if exist "application.3dsx" (
-    del application.elf
-    del application.smdh
+if exist "3DS-Cookie-Clicker.3dsx" (
+    del 3DS-Cookie-Clicker.elf
+    del 3DS-Cookie-Clicker.smdh
     ECHO Done! Launching...
-    application.3dsx
+    3DS-Cookie-Clicker.3dsx
 ) else (
     ECHO Failed to build! Check Errors.
 )
 pause
-del application.3dsx
+del 3DS-Cookie-Clicker.3dsx
 goto t

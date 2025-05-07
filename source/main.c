@@ -17,8 +17,6 @@ typedef struct {
 	int cookiePerPress;
 } gameState;
 
-#define MAX_TEXT_COUNT 100
-
 int main() {
     gfxInitDefault();
     romfsInit();
@@ -35,7 +33,7 @@ int main() {
     C2D_Image cookie = C2D_SpriteSheetGetImage(temp, 0);
     free(temp);
 
-    SpawnedText spawnedText[MAX_TEXT_COUNT];
+    SpawnedText spawnedText[50];
     int stCount = 0;
 
     gameState game;
@@ -63,7 +61,7 @@ int main() {
                     game.cookies += game.cookiePerPress;
                     game.textSize = 0.5;
 
-                    if (stCount < MAX_TEXT_COUNT) {
+                    if (stCount < 50) {
                         char final[16];
                         snprintf(final, sizeof(final), "+%d", game.cookiePerPress);
 

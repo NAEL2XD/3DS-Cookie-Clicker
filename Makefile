@@ -31,6 +31,10 @@ include $(DEVKITARM)/3ds_rules
 #     - icon.png
 #     - <libctru folder>/default_icon.png
 #---------------------------------------------------------------------------------
+APP_TITLE       := 3DS Cookie Clicker
+APP_DESCRIPTION := Where gaining cookies gets way too addictive.
+APP_AUTHOR      := Nael2xd
+
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 SOURCES		:=	source

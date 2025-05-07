@@ -14,6 +14,6 @@ if exist "3DS-Cookie-Clicker.3dsx" (
 ) else (
     ECHO Failed to build! Check Errors.
 )
-pause
 del 3DS-Cookie-Clicker.3dsx
+pause
 goto t

@@ -8,15 +8,22 @@ C2D_Font defaultFont;
 C2D_TextBuf g_staticBuf;
 u32 borderColor;
 u32 textColor;
-void UTILS_renderBorderText(const char *text, float x, float y, float borderSize, float size) {
+
+// Use custom function to init first before starting process.
+void initBeforeProcess() {
     // If some are NULL, set their default value.
     if (defaultFont == NULL) defaultFont = C2D_FontLoadSystem(CFG_REGION_USA);
     if (g_staticBuf == NULL) g_staticBuf = C2D_TextBufNew(4096);
     borderColor = C2D_Color32(0x00, 0x00, 0x00, 0xAA);
     textColor   = C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF);
 
+    C2D_TextBufClear(g_staticBuf);
+}
+
+void UTILS_renderBorderText(char *text, float x, float y, float borderSize, float size) {
+    initBeforeProcess();
+
     // Clear and Parse to make text work.
-	C2D_TextBufClear(g_staticBuf);
     C2D_TextFontParse(&renderText, defaultFont, g_staticBuf, text);
     C2D_TextOptimize(&renderText);
 
@@ -30,4 +37,12 @@ void UTILS_renderBorderText(const char *text, float x, float y, float borderSize
         C2D_DrawText(&renderText, C2D_WithColor, x + (pos[i][0] * finalMult), y + (pos[i][1] * finalMult), 0.5f, size, size, borderColor);
     }
     C2D_DrawText(&renderText, C2D_WithColor, x, y, 0.5f, size, size, textColor);
+}
+
+void UTILS_quickRenderText(char *text, float x, float y, float alpha, float size) {
+    initBeforeProcess();
+
+    C2D_TextFontParse(&renderText, defaultFont, g_staticBuf, text);
+    C2D_TextOptimize(&renderText);
+    C2D_DrawText(&renderText, C2D_WithColor, x, y, 0.5f, size, size, C2D_Color32(0xFF, 0xFF, 0xFF, (u8)alpha));
 }

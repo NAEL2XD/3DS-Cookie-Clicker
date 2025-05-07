@@ -45,6 +45,16 @@ int main() {
 		bool exit = false;
 		switch (state) {
 			case 1:
+				// Controls
+				if (kDown & KEY_A) {
+					game.cookies++;
+					game.textSize = 0.5;
+				}
+				if (kDown & KEY_START) {
+					exit = true;
+					break;
+				}
+
 				char cookieShit[64];
 				snprintf(cookieShit, sizeof(cookieShit), "%d", game.cookies);
 				UTILS_renderBorderText("Press [START] to exit.", -1, 210, 1, 0.8);
@@ -55,12 +65,6 @@ int main() {
 				C2D_DrawImageAtRotated(cookie, 200 + (finalSize * 6), 128 + (finalSize * 6), 0, sin((osGetTime() - curTime) / 800) / 8, NULL, finalSize + 1.2, finalSize + 1.2);
 				game.textSize /= 1.1;
 			
-				// Your code goes here
-				if (kDown & KEY_A) {
-					game.cookies++;
-					game.textSize = 0.5;
-				}
-				if (kDown & KEY_START) exit = true;
 
 				break;
 		}

@@ -67,7 +67,7 @@ int main() {
 
                         // Add new text to spawnedText array
                         snprintf(spawnedText[stCount].text, sizeof(spawnedText[stCount].text), "%s", final);
-                        spawnedText[stCount].x = (rand() % 120) + 120;
+                        spawnedText[stCount].x = (rand() % 133) + 115;
                         spawnedText[stCount].y = (rand() % 80) + 80;
                         spawnedText[stCount].alpha = 255;
 

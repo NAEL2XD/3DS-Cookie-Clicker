@@ -21,7 +21,7 @@ gameState game;
 
 C2D_SpriteSheet temp;
 C2D_Image cookie;
-void game_init() {
+int game_init() {
     game.cookies  =       0;
     game.textSize =       0;
     game.cookiePerPress = 1;
@@ -29,6 +29,8 @@ void game_init() {
     temp = C2D_SpriteSheetLoad("romfs:/assets/cookie.t3x");
     cookie = C2D_SpriteSheetGetImage(temp, 0);
     free(temp);
+
+    return 0;
 }
 
 bool game_update() {

@@ -1,5 +1,3 @@
-#include <3ds.h>
-#include <citro2d.h>
 #include <math.h>
 #include <stdlib.h>
 #include "utils.h"
@@ -20,6 +18,7 @@ int main() {
     C2D_Prepare();
     C3D_RenderTarget *top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
 
+    game_init();
     printf("Done Precaching.");
 
     curTime = osGetTime();

@@ -1,7 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
-void game_init();
+int game_init();
 bool game_update();
 
 #endif

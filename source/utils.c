@@ -1,6 +1,6 @@
 #include <3ds.h>
-#include <citro2d.h>
 #include <math.h>
+#include <citro2d.h>
 
 // Prework those things.
 C2D_Text renderText;
@@ -45,4 +45,8 @@ void UTILS_quickRenderText(char *text, float x, float y, float alpha, float size
     C2D_TextFontParse(&renderText, defaultFont, g_staticBuf, text);
     C2D_TextOptimize(&renderText);
     C2D_DrawText(&renderText, C2D_WithColor, x, y, 0.5f, size, size, C2D_Color32(0xFF, 0xFF, 0xFF, (u8)alpha));
+}
+
+C2D_Image UTILS_loadImage(char *file) {
+    return C2D_SpriteSheetGetImage(C2D_SpriteSheetLoad(file), 0);
 }

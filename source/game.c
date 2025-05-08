@@ -16,26 +16,20 @@ typedef struct {
 	int cookies;
 	float textSize;
 	int cookiePerPress;
+
+    struct {
+        C2D_Image cookie;
+    } sprites;
 } gameState;
 gameState game;
 
-C2D_Image cookie;
 int game_init() {
-    C2D_SpriteSheet temp;
-
-    printf("Setting\n");
-    game.cookies  =       0;
-    game.textSize =       0;
+    game.cookies  = 0;
+    game.textSize = 0;
     game.cookiePerPress = 1;
 
-    printf("Caching\n");
-    temp = C2D_SpriteSheetLoad("romfs:/assets/cookie.t3x"); // gets stuck on there???
-    printf("Setting to cookie.\n");
-    cookie = C2D_SpriteSheetGetImage(temp, 0);
-    printf("Freeing temp.\n");
-    free(temp);
-
-    printf("Done!\n");
+    printf("PLEASE WORK");
+    game.sprites.cookie = UTILS_loadImage("romfs:/assets/cookie.t3x");
     return 0;
 }
 
@@ -69,7 +63,7 @@ bool game_update() {
 
     float finalSize = -(game.textSize / 6);
     UTILS_renderBorderText(cookieShit, -1, -10 + (20 / (game.textSize + 1)), 1, game.textSize + 1);
-    C2D_DrawImageAtRotated(cookie, 200 + (finalSize * 6), 128 + (finalSize * 6), 0, sin((osGetTime() - curTime) / 800) / 8, NULL, finalSize + 1.2, finalSize + 1.2);
+    C2D_DrawImageAtRotated(game.sprites.cookie, 200 + (finalSize * 6), 128 + (finalSize * 6), 0, sin((osGetTime() - curTime) / 800) / 8, NULL, finalSize + 1.2, finalSize + 1.2);
     game.textSize /= 1.1;
 
     for (int i = 0; i < stCount; i++) {

@@ -19,7 +19,6 @@ int main() {
     C3D_RenderTarget *top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
 
     game_init();
-    printf("Done Precaching.");
 
     curTime = osGetTime();
     while (aptMainLoop()) {

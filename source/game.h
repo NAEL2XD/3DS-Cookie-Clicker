@@ -1,5 +1,5 @@
-#ifndef _game_h_
-#define _game_h_
+#ifndef GAME_H
+#define GAME_H
 
 void game_init();
 bool game_update();

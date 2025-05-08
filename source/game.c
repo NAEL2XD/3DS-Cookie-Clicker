@@ -1,5 +1,3 @@
-#include <citro2d.h>
-#include <3ds.h>
 #include <math.h>
 #include <stdlib.h>
 #include "utils.h"
@@ -11,16 +9,15 @@ typedef struct {
     float y;       // Y-coordinate
     int alpha;     // Transparency (alpha value)
 } SpawnedText;
+SpawnedText spawnedText[50];
+int stCount = 0;
 
 typedef struct {
 	int cookies;
 	float textSize;
 	int cookiePerPress;
 } gameState;
-
 gameState game;
-SpawnedText spawnedText[50];
-int stCount = 0;
 
 C2D_SpriteSheet temp;
 C2D_Image cookie;
@@ -53,6 +50,7 @@ bool game_update() {
             stCount++;
         }
     }
+
     if (kDown & KEY_START) {
         return true;
     }

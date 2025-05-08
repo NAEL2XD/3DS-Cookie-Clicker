@@ -1,8 +1,13 @@
-#ifndef _main_h_
-#define _main_h_
+#ifndef MAIN_H
+#define MAIN_H
 
-int state = 1;
-u64 curTime;
-u32 kDown;
+#include <3ds.h>
+#include <citro2d.h>
+#include "stdio.h"
 
-#endif
+// Declare variables as extern
+extern int state;
+extern u64 curTime;
+extern u32 kDown;
+
+#endif // MAIN_H

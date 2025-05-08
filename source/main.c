@@ -6,6 +6,9 @@
 #include "main.h"
 #include "game.h"
 
+int state = 1;
+u64 curTime = 0;
+u32 kDown = 0;
 int main() {
     gfxInitDefault();
     romfsInit();
@@ -15,10 +18,10 @@ int main() {
     C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
     C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
     C2D_Prepare();
-
-    game_init();
-
     C3D_RenderTarget *top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
+
+    printf("Done Precaching.");
+
     curTime = osGetTime();
     while (aptMainLoop()) {
         hidScanInput();

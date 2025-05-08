@@ -19,17 +19,23 @@ typedef struct {
 } gameState;
 gameState game;
 
-C2D_SpriteSheet temp;
 C2D_Image cookie;
 int game_init() {
+    C2D_SpriteSheet temp;
+
+    printf("Setting\n");
     game.cookies  =       0;
     game.textSize =       0;
     game.cookiePerPress = 1;
 
-    temp = C2D_SpriteSheetLoad("romfs:/assets/cookie.t3x");
+    printf("Caching\n");
+    temp = C2D_SpriteSheetLoad("romfs:/assets/cookie.t3x"); // gets stuck on there???
+    printf("Setting to cookie.\n");
     cookie = C2D_SpriteSheetGetImage(temp, 0);
+    printf("Freeing temp.\n");
     free(temp);
 
+    printf("Done!\n");
     return 0;
 }
 

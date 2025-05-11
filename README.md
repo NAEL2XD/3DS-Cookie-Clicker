@@ -20,9 +20,12 @@ Like this game? Give it a star on GitHub!
 # KEYBINDS:
 ## GAME (not in shop)
 <kbd>A</kbd>: Click and gain cookie(s).
+
 <kbd>DPAD LEFT</kbd>: Open shop.
+
 <kbd>START</kbd>: Exit.
 
 ## GAME (in shop)
 <kbd>A</kbd>: Buy the current product.
+
 <kbd>DPAD RIGHT</kbd>: Exit shop.

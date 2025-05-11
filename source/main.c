@@ -5,7 +5,6 @@
 #include "game.h"
 
 int state = 1;
-u64 curTime = 0;
 u32 kDown = 0;
 int main() {
     gfxInitDefault();
@@ -18,9 +17,9 @@ int main() {
     C2D_Prepare();
     C3D_RenderTarget *top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
 
+    UTILS_Init();
     game_init();
 
-    curTime = osGetTime();
     while (aptMainLoop()) {
         hidScanInput();
         kDown = hidKeysDown();

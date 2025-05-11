@@ -7,7 +7,6 @@
 
 // Declare variables as extern
 extern int state;
-extern u64 curTime;
 extern u32 kDown;
 
 #endif // MAIN_H

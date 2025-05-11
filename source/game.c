@@ -16,6 +16,7 @@ typedef struct {
 	int cookies;
 	float textSize;
 	int cookiePerPress;
+    int cookiePerSecond;
 
     struct {
         C2D_Image cookie;
@@ -27,12 +28,16 @@ int game_init() {
     game.cookies  = 0;
     game.textSize = 0;
     game.cookiePerPress = 1;
+    game.cookiePerSecond = 0;
 
-    // game.sprites.cookie = UTILS_loadImage("romfs:/assets/cookie.t3x");
+    game.sprites.cookie = UTILS_loadImage("romfs:/assets/cookie.t3x");
     return 0;
 }
 
+u64 timerCPS = 0;
 bool game_update() {
+    u64 runningTime = UTILS_getRunningTime();
+
     // Controls
     if (kDown & KEY_A) {
         game.cookies += game.cookiePerPress;
@@ -58,11 +63,14 @@ bool game_update() {
 
     char cookieShit[64];
     snprintf(cookieShit, sizeof(cookieShit), "%d", game.cookies);
-    UTILS_renderBorderText("Press [START] to exit.", -1, 210, 1, 0.8);
+
+    char cpsShit[64];
+    snprintf(cpsShit, sizeof(cpsShit), "%d cookies per second.", game.cookiePerSecond);
 
     float finalSize = -(game.textSize / 6);
     UTILS_renderBorderText(cookieShit, -1, -10 + (20 / (game.textSize + 1)), 1, game.textSize + 1);
-    // C2D_DrawImageAtRotated(game.sprites.cookie, 200 + (finalSize * 6), 128 + (finalSize * 6), 0, sin((osGetTime() - curTime) / 800) / 8, NULL, finalSize + 1.2, finalSize + 1.2);
+    UTILS_quickRenderText(cpsShit, -1, 40 + (game.textSize * 8), 255, 0.5);
+    C2D_DrawImageAtRotated(game.sprites.cookie, 200 + (finalSize * 6), 128 + (finalSize * 6), 0, sin((float)runningTime / 512) / 8, NULL, finalSize + 1.2, finalSize + 1.2);
     game.textSize /= 1.1;
 
     for (int i = 0; i < stCount; i++) {
@@ -79,6 +87,11 @@ bool game_update() {
             stCount--;
             i--; // Adjust index after removal
         }
+    }
+
+    if (runningTime - timerCPS > 1000) {
+        game.cookies += game.cookiePerSecond;
+        timerCPS = runningTime;
     }
 
     return false;

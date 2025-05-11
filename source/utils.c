@@ -1,35 +1,56 @@
 #include <3ds.h>
-#include <math.h>
 #include <citro2d.h>
+#include <math.h>
 
 // Prework those things.
+// Text Functions
 C2D_Text renderText;
 C2D_Font defaultFont;
 C2D_TextBuf g_staticBuf;
 u32 borderColor;
 u32 textColor;
 
+// Time Functions
+u64 oldTime = 0;
+
 // Use custom function to init first before starting process.
+bool initialized = false;
 void initBeforeProcess() {
+    if (initialized) return;
+
+    // TEXT
     // If some are NULL, set their default value.
     if (defaultFont == NULL) defaultFont = C2D_FontLoadSystem(CFG_REGION_USA);
     if (g_staticBuf == NULL) g_staticBuf = C2D_TextBufNew(4096);
-    borderColor = C2D_Color32(0x00, 0x00, 0x00, 0xAA);
-    textColor   = C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF);
+    borderColor = C2D_Color32(0,   0,   0,  0xAA);
+    textColor   = C2D_Color32(255, 255, 255, 255);
+    
+    // TIME
+    oldTime = osGetTime();
+    
+    initialized = true;
+}
 
-    C2D_TextBufClear(g_staticBuf);
+// If the x variable is -1, then it will be set to middle.
+float centerX(float xCheck, C2D_Text text, float size) {
+    return (int)xCheck == -1 ? (-(text.width * size) / 2) + 200 : xCheck;
+}
+
+void UTILS_Init() {
+    initBeforeProcess();
 }
 
 void UTILS_renderBorderText(char *text, float x, float y, float borderSize, float size) {
     initBeforeProcess();
-
+    
     // Clear and Parse to make text work.
+    C2D_TextBufClear(g_staticBuf);
     C2D_TextFontParse(&renderText, defaultFont, g_staticBuf, text);
     C2D_TextOptimize(&renderText);
 
-    // If the x variable is -1, then it will be set to middle.
-    if (x == -1) x = (-(renderText.width * size) / 2) + 200;
-
+    // Center X 
+    x = centerX(x, renderText, size);
+    
     // Do the trick.
     int pos[8][2] = {{-1, -1}, {1, -1}, {-1, 1}, {1, 1}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}};
     for (int i = 0; i < 8; i++) {
@@ -41,12 +62,32 @@ void UTILS_renderBorderText(char *text, float x, float y, float borderSize, floa
 
 void UTILS_quickRenderText(char *text, float x, float y, float alpha, float size) {
     initBeforeProcess();
-
+    
+    // Clear and Parse to make text work.
+    C2D_TextBufClear(g_staticBuf);
     C2D_TextFontParse(&renderText, defaultFont, g_staticBuf, text);
     C2D_TextOptimize(&renderText);
-    C2D_DrawText(&renderText, C2D_WithColor, x, y, 0.5f, size, size, C2D_Color32(0xFF, 0xFF, 0xFF, (u8)alpha));
+
+    // Center X 
+    x = centerX(x, renderText, size);
+
+    C2D_DrawText(&renderText, C2D_WithColor, x, y, 0.5f, size, size, C2D_Color32(255, 255, 255, alpha));
+}
+
+u64 UTILS_getRunningTime() {
+    initBeforeProcess();
+
+    u64 newTime   = osGetTime();
+    return newTime - oldTime;
 }
 
 C2D_Image UTILS_loadImage(char *file) {
-    return C2D_SpriteSheetGetImage(C2D_SpriteSheetLoad(file), 0);
+    initBeforeProcess();
+
+    C2D_SpriteSheet spriteSheet = C2D_SpriteSheetLoad(file);
+    if (!spriteSheet) {
+        printf("Failed to load sprite sheet: %s\n", file);
+        return (C2D_Image){0}; // Return an empty image on failure
+    }
+    return C2D_SpriteSheetGetImage(spriteSheet, 0);
 }

@@ -13,17 +13,52 @@ SpawnedText spawnedText[50];
 int stCount = 0;
 
 typedef struct {
+    // Game Properties
 	float cookies;
 	float textSize;
 	float cookiePerPress;
     float cookiePerSecond;
 
+    // Color
+    u32 red;
+    u32 green;
+    u32 white;
+
+    // Shop Properties
+    bool shopUnlocked;
+    bool onShop;
+    int shopChoice;
+
     struct {
         C2D_Image cookie;
         C2D_Image background;
+        C2D_Image productInfo;
+        C2D_Image smallCookie;
     } sprites;
 } gameState;
 gameState game;
+
+typedef struct {
+    const char* name;
+    float price;
+    float multiplier;
+    bool unlocked;
+    int own;
+
+    C2D_Image img;
+} ShopItem;
+ShopItem shopProps[1] = {
+    // Name,    Price, Multiply, Unlocked, Owns
+    {"Cursor",  10,    1.1,      false,    0}
+};
+
+float updateCPS() {
+    float total = 0;
+    for (int i = 0; i < (sizeof(shopProps)/sizeof(shopProps[0])); i++) {
+        total += (float)shopProps[i].own / 10.0f; // Example formula
+    }
+    return total;
+}
 
 int game_init() {
     // Initialize Variables
@@ -32,9 +67,21 @@ int game_init() {
     game.cookiePerPress = 1.0;
     game.cookiePerSecond = 0.0;
 
+    // Shop Properties
+    game.shopUnlocked = false;
+    game.onShop       = false;
+    game.shopChoice   = 0;
+
+    // Initialize Colors
+    game.red   = C2D_Color32(255,   0,   0, 255);
+    game.green = C2D_Color32(0,   255,   0, 255);
+    game.white = C2D_Color32(255, 255, 255, 255);
+
     // Initialize Images
-    game.sprites.cookie     = UTILS_loadImage("romfs:/assets/cookie.t3x");
-    game.sprites.background = UTILS_loadImage("romfs:/assets/background.t3x");
+    game.sprites.cookie      = UTILS_loadImage("romfs:/assets/cookie.t3x");
+    game.sprites.background  = UTILS_loadImage("romfs:/assets/background.t3x");
+    game.sprites.productInfo = UTILS_loadImage("romfs:/assets/productInfo.t3x");
+    game.sprites.smallCookie = UTILS_loadImage("romfs:/assets/smallCookie.t3x");
     return 0;
 }
 
@@ -43,22 +90,28 @@ bool game_update() {
     u64 runningTime = UTILS_getRunningTime();
 
     // Controls
-    if (kDown & KEY_A) {
+    if ((kDown & KEY_A) && !game.onShop) {
         game.cookies += game.cookiePerPress;
         game.textSize = 0.5;
-
+            
         if (stCount < 50) {
             char final[16];
             snprintf(final, sizeof(final), "+%d", (int)game.cookiePerPress);
-
+            
             // Add new text to spawnedText array
             snprintf(spawnedText[stCount].text, sizeof(spawnedText[stCount].text), "%s", final);
             spawnedText[stCount].x = (rand() % 133) + 115;
             spawnedText[stCount].y = (rand() % 80) + 80;
             spawnedText[stCount].alpha = 255;
-
+            
             stCount++;
         }
+    }
+
+    if ((kDown & KEY_LEFT) && game.shopUnlocked && !game.onShop) {
+        game.onShop = true;
+    } else if ((kDown & KEY_RIGHT) && game.onShop) {
+        game.onShop = false;
     }
 
     if (kDown & KEY_START) {
@@ -71,16 +124,16 @@ bool game_update() {
     snprintf(cookieShit, sizeof(cookieShit), "%d", (int)game.cookies);
 
     char cpsShit[64];
-    snprintf(cpsShit, sizeof(cpsShit), "%d cookies per second.", (int)game.cookiePerSecond);
+    snprintf(cpsShit, sizeof(cpsShit), "%.1f cookies per second.", game.cookiePerSecond);
 
     float finalSize = -(game.textSize / 6);
     UTILS_renderBorderText(cookieShit, -1, -10 + (20 / (game.textSize + 1)), 1, game.textSize + 1);
-    UTILS_quickRenderText(cpsShit, -1, 40 + (game.textSize * 8), 255, 0.5);
+    UTILS_quickRenderText(cpsShit, -1, 40 + (game.textSize * 8), game.white, 0.5);
     C2D_DrawImageAtRotated(game.sprites.cookie, 200 + (finalSize * 6), 128 + (finalSize * 6), 0, sin((float)runningTime / 512) / 8, NULL, finalSize + 1.2, finalSize + 1.2);
     game.textSize /= 1.1;
 
     for (int i = 0; i < stCount; i++) {
-        UTILS_quickRenderText(spawnedText[i].text, spawnedText[i].x, spawnedText[i].y, spawnedText[i].alpha, 1);
+        UTILS_quickRenderText(spawnedText[i].text, spawnedText[i].x, spawnedText[i].y, C2D_Color32(255, 255, 255, spawnedText[i].alpha), 1);
         spawnedText[i].alpha -= 5;
         spawnedText[i].y -= 0.8;
 
@@ -92,6 +145,46 @@ bool game_update() {
 
             stCount--;
             i--; // Adjust index after removal
+        }
+    }
+
+    if (game.onShop) {
+        C2D_DrawRectSolid(0, 15 + (24 * game.shopChoice), 0, 101, 30, C2D_Color32(255, 255, 0, 255));
+        if (kDown & KEY_A && game.cookies >= (int)shopProps[game.shopChoice].price) {
+            game.cookies -= shopProps[game.shopChoice].price;
+            shopProps[game.shopChoice].price *= shopProps[game.shopChoice].multiplier;
+            shopProps[game.shopChoice].own++;
+
+            game.cookiePerSecond = updateCPS();
+        }
+    }
+
+    int productSpawn = 0;
+    for (int i = 0; i < 1; i++) {
+        bool unlocked = game.cookies >= (int)shopProps[i].price;
+        if (!shopProps[i].unlocked && unlocked) {
+            shopProps[i].unlocked = true;
+            game.shopUnlocked     = true;
+        } else if (shopProps[i].unlocked) {
+            // Check if the image hasn't been loaded yet
+            if (shopProps[i].img.tex == NULL) {
+                char path[256];
+                snprintf(path, sizeof(path), "romfs:/assets/product/%s.t3x", shopProps[i].name);
+                shopProps[i].img = UTILS_loadImage(path);
+            }
+
+            // Draw the things.
+            C2D_DrawImageAtRotated(game.sprites.productInfo, 0, 30 + (30 * productSpawn), 0, UTILS_angleToRadians(180), NULL, 1.75, 1.1);
+            C2D_DrawImageAt(shopProps[i].img, 2, 21 + (30 * productSpawn), 0, NULL, 0.6, 0.75);
+            C2D_DrawImageAt(game.sprites.smallCookie, 19, 32 + (30 * productSpawn), 0, NULL, 0.15, 0.15);
+            
+            char cost[32];
+            snprintf(cost, sizeof(cost), "%d", (int)shopProps[i].price);
+            UTILS_quickRenderText(cost, 27, 31 + (30 * productSpawn), unlocked ? game.green : game.red, 0.28);
+            UTILS_quickRenderText(shopProps[i].name, 18, 19 + (30 * productSpawn), game.white, 0.45);
+
+            // Increment.
+            productSpawn++;
         }
     }
 

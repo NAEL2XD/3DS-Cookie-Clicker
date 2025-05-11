@@ -28,8 +28,6 @@ int main() {
         C2D_TargetClear(top, C2D_Color32(0x68, 0xB0, 0xD8, 0xFF));
         C2D_SceneBegin(top);
 
-        UTILS_quickRenderText("DEMO", 0, 0, 120, 0.4);
-
         bool exit = false;
         switch (state) {
             case 1:

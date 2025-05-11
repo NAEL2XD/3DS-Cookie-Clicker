@@ -40,7 +40,7 @@ void UTILS_Init() {
     initBeforeProcess();
 }
 
-void UTILS_renderBorderText(char *text, float x, float y, float borderSize, float size) {
+void UTILS_renderBorderText(const char *text, float x, float y, float borderSize, float size) {
     initBeforeProcess();
     
     // Clear and Parse to make text work.
@@ -60,7 +60,7 @@ void UTILS_renderBorderText(char *text, float x, float y, float borderSize, floa
     C2D_DrawText(&renderText, C2D_WithColor, x, y, 0.5f, size, size, textColor);
 }
 
-void UTILS_quickRenderText(char *text, float x, float y, float alpha, float size) {
+void UTILS_quickRenderText(const char *text, float x, float y, u32 col, float size) {
     initBeforeProcess();
     
     // Clear and Parse to make text work.
@@ -71,7 +71,11 @@ void UTILS_quickRenderText(char *text, float x, float y, float alpha, float size
     // Center X 
     x = centerX(x, renderText, size);
 
-    C2D_DrawText(&renderText, C2D_WithColor, x, y, 0.5f, size, size, C2D_Color32(255, 255, 255, alpha));
+    // Check col
+    if (col == 0) col = C2D_Color32(255, 255, 255, 255);
+
+    // Draw!
+    C2D_DrawText(&renderText, C2D_WithColor, x, y, 0.5f, size, size, col);
 }
 
 u64 UTILS_getRunningTime() {
@@ -90,4 +94,10 @@ C2D_Image UTILS_loadImage(char *file) {
         return (C2D_Image){0}; // Return an empty image on failure
     }
     return C2D_SpriteSheetGetImage(spriteSheet, 0);
+}
+
+double UTILS_angleToRadians(double angle) {
+    initBeforeProcess();
+
+    return angle * (M_PI / 180.0);
 }

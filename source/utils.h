@@ -19,7 +19,7 @@ void UTILS_Init();
     @param size Size for the text to draw.
                 `NOTE` that `borderSize` will be multiplied by `size`!
 **/
-void UTILS_renderBorderText(char *text, float x, float y, float borderSize, float size);
+void UTILS_renderBorderText(const char *text, float x, float y, float borderSize, float size);
 
 /**
     Quickly renders a bordered text without having to use any special variables.
@@ -29,10 +29,10 @@ void UTILS_renderBorderText(char *text, float x, float y, float borderSize, floa
     @param text String text to write as.
     @param x The x position to draw in. If `x` is set to `-1` then it will make the text go in middle.
     @param y The y position to draw in.
-    @param alpha Visibility to set as, can be 0 - 255.
+    @param col u32 color to set as. Optional, can be `NULL` (will be white).
     @param size Size for the text to draw. NOTE that `borderSize` will be multiplied by `size`!
 **/
-void UTILS_quickRenderText(char *text, float x, float y, float alpha, float size);
+void UTILS_quickRenderText(const char *text, float x, float y, u32 col, float size);
 
 /**
     @brief Gets the current time the application has ran.
@@ -48,5 +48,12 @@ u64 UTILS_getRunningTime();
     @return The image variable stored in there.
 **/
 C2D_Image UTILS_loadImage(char *file);
+
+/**
+    @brief Returns converted angle to radians. Also the same as [this](https://www.rapidtables.com/convert/number/degrees-to-radians.html).
+    @param angle The angle to convert to radians.
+    @return The converted radian.
+**/
+double UTILS_angleToRadians(double angle);
 
 #endif

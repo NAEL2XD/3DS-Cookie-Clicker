@@ -13,24 +13,28 @@ SpawnedText spawnedText[50];
 int stCount = 0;
 
 typedef struct {
-	int cookies;
+	float cookies;
 	float textSize;
-	int cookiePerPress;
-    int cookiePerSecond;
+	float cookiePerPress;
+    float cookiePerSecond;
 
     struct {
         C2D_Image cookie;
+        C2D_Image background;
     } sprites;
 } gameState;
 gameState game;
 
 int game_init() {
+    // Initialize Variables
     game.cookies  = 0;
     game.textSize = 0;
-    game.cookiePerPress = 1;
-    game.cookiePerSecond = 0;
+    game.cookiePerPress = 1.0;
+    game.cookiePerSecond = 0.0;
 
-    game.sprites.cookie = UTILS_loadImage("romfs:/assets/cookie.t3x");
+    // Initialize Images
+    game.sprites.cookie     = UTILS_loadImage("romfs:/assets/cookie.t3x");
+    game.sprites.background = UTILS_loadImage("romfs:/assets/background.t3x");
     return 0;
 }
 
@@ -45,7 +49,7 @@ bool game_update() {
 
         if (stCount < 50) {
             char final[16];
-            snprintf(final, sizeof(final), "+%d", game.cookiePerPress);
+            snprintf(final, sizeof(final), "+%d", (int)game.cookiePerPress);
 
             // Add new text to spawnedText array
             snprintf(spawnedText[stCount].text, sizeof(spawnedText[stCount].text), "%s", final);
@@ -61,11 +65,13 @@ bool game_update() {
         return true;
     }
 
+    C2D_DrawImageAt(game.sprites.background, 0, 0, 0, NULL, 1, 1);
+
     char cookieShit[64];
-    snprintf(cookieShit, sizeof(cookieShit), "%d", game.cookies);
+    snprintf(cookieShit, sizeof(cookieShit), "%d", (int)game.cookies);
 
     char cpsShit[64];
-    snprintf(cpsShit, sizeof(cpsShit), "%d cookies per second.", game.cookiePerSecond);
+    snprintf(cpsShit, sizeof(cpsShit), "%d cookies per second.", (int)game.cookiePerSecond);
 
     float finalSize = -(game.textSize / 6);
     UTILS_renderBorderText(cookieShit, -1, -10 + (20 / (game.textSize + 1)), 1, game.textSize + 1);

@@ -9,6 +9,8 @@ endif
 TOPDIR ?= $(CURDIR)
 include $(DEVKITARM)/3ds_rules
 
+VERSION := 0.0.1
+
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output
 # BUILD is the directory where object files & intermediate files will be placed
@@ -31,7 +33,7 @@ include $(DEVKITARM)/3ds_rules
 #     - icon.png
 #     - <libctru folder>/default_icon.png
 #---------------------------------------------------------------------------------
-APP_TITLE       := 3DS Cookie Clicker
+APP_TITLE       := 3DS Cookie Clicker (v$(VERSION))
 APP_DESCRIPTION := Where gaining cookies gets way too addictive.
 APP_AUTHOR      := Nael2xd
 

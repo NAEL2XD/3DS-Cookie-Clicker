@@ -9,7 +9,7 @@ endif
 TOPDIR ?= $(CURDIR)
 include $(DEVKITARM)/3ds_rules
 
-VERSION := 0.0.1
+VERSION := 0.1.0
 
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output

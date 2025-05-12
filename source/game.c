@@ -24,6 +24,7 @@ typedef struct {
     // Color
     u32 red;
     u32 green;
+    u32 black;
     u32 white;
 
     // Shop Properties
@@ -53,7 +54,7 @@ typedef struct {
 ShopItem shopProps[MAX_PRODUCTS] = {
     // Name,    Price, Multiply, Unlocked, Owns, CPS Increment
     {"Cursor",  10,    1.1,      false,    0,   0.1},
-    {"Grandma", 100,   1.05,     false,    0,   1}
+    {"Grandma", 50,    1.05,     false,    0,   1}
 };
 
 float updateCPS() {
@@ -77,8 +78,9 @@ int game_init() {
     game.shopChoice   = 0;
 
     // Initialize Colors
-    game.red   = C2D_Color32(255,   0,   0, 255);
-    game.green = C2D_Color32(0,   255,   0, 255);
+    game.red   = C2D_Color32(255,   0, 0,   255);
+    game.green = C2D_Color32(0,   255, 0,   255);
+    game.black = C2D_Color32(0,   0,   0,   255);
     game.white = C2D_Color32(255, 255, 255, 255);
 
     // Initialize Images
@@ -154,7 +156,7 @@ bool game_update() {
     }
 
     if (game.onShop) {
-        C2D_DrawRectSolid(0, 15 + (28 * game.shopChoice), 0, 101, 30, C2D_Color32(255, 255, 0, 255));
+        C2D_DrawRectSolid(0, 15 + (27 * game.shopChoice), 0, 101, 30, C2D_Color32(255, 255, 0, 255));
         if (kDown & KEY_A && game.cookies >= (int)shopProps[game.shopChoice].price) {
             game.cookies -= shopProps[game.shopChoice].price;
             shopProps[game.shopChoice].price *= shopProps[game.shopChoice].multiplier;
@@ -196,14 +198,14 @@ bool game_update() {
             }
 
             // Draw the things.
-            C2D_DrawImageAtRotated(game.sprites.productInfo, 0, 30 + (28 * productSpawn), 0, UTILS_angleToRadians(180), NULL, 1.75, 1.1);
+            C2D_DrawImageAtRotated(game.sprites.productInfo, 0, 30 + (27 * productSpawn), 0, UTILS_angleToRadians(180), NULL, 1.75, 1.1);
             C2D_DrawImageAt(shopProps[i].img, 2, 21 + (26 * productSpawn), 0, NULL, 0.6, 0.75);
-            C2D_DrawImageAt(game.sprites.smallCookie, 19, 32 + (28 * productSpawn), 0, NULL, 0.15, 0.15);
+            C2D_DrawImageAt(game.sprites.smallCookie, 19, 32 + (27 * productSpawn), 0, NULL, 0.15, 0.15);
             
             char cost[32];
             snprintf(cost, sizeof(cost), "%d", (int)shopProps[i].price);
-            UTILS_quickRenderText(cost, 27, 31 + (28 * productSpawn), unlocked ? game.green : game.red, 0.28);
-            UTILS_quickRenderText(shopProps[i].name, 18, 19 + (28 * productSpawn), game.white, 0.45);
+            UTILS_quickRenderText(cost, 27, 31 + (27 * productSpawn), unlocked ? game.green : game.red, 0.28);
+            UTILS_quickRenderText(shopProps[i].name, 18, 19 + (27 * productSpawn), game.black, 0.45);
 
             // Increment.
             productSpawn++;

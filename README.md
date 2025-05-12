@@ -13,6 +13,8 @@ Currently in the works:
 - Stats.
 - Saving, loading.
 - Sounds.
+- Minigames.
+- Golden Cookies.
 - Many More.
 
 Like this game? Give it a star on GitHub!

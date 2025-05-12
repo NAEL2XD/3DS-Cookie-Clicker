@@ -3,6 +3,8 @@
 #include "utils.h"
 #include "main.h"
 
+#define MAX_PRODUCTS 2
+
 typedef struct {
     char text[16]; // Text to display
     float x;       // X-coordinate
@@ -44,18 +46,20 @@ typedef struct {
     float multiplier;
     bool unlocked;
     int own;
+    float cpsInc;
 
     C2D_Image img;
 } ShopItem;
-ShopItem shopProps[1] = {
-    // Name,    Price, Multiply, Unlocked, Owns
-    {"Cursor",  10,    1.1,      false,    0}
+ShopItem shopProps[MAX_PRODUCTS] = {
+    // Name,    Price, Multiply, Unlocked, Owns, CPS Increment
+    {"Cursor",  10,    1.1,      false,    0,   0.1},
+    {"Grandma", 100,   1.05,     false,    0,   1}
 };
 
 float updateCPS() {
     float total = 0;
     for (int i = 0; i < (sizeof(shopProps)/sizeof(shopProps[0])); i++) {
-        total += (float)shopProps[i].own / 10.0f; // Example formula
+        total += (float)shopProps[i].own * shopProps[i].cpsInc; // Example formula
     }
     return total;
 }
@@ -85,6 +89,7 @@ int game_init() {
     return 0;
 }
 
+int unlocks = -1;
 u64 timerCPS = 0;
 bool game_update() {
     u64 runningTime = UTILS_getRunningTime();
@@ -149,7 +154,7 @@ bool game_update() {
     }
 
     if (game.onShop) {
-        C2D_DrawRectSolid(0, 15 + (24 * game.shopChoice), 0, 101, 30, C2D_Color32(255, 255, 0, 255));
+        C2D_DrawRectSolid(0, 15 + (28 * game.shopChoice), 0, 101, 30, C2D_Color32(255, 255, 0, 255));
         if (kDown & KEY_A && game.cookies >= (int)shopProps[game.shopChoice].price) {
             game.cookies -= shopProps[game.shopChoice].price;
             shopProps[game.shopChoice].price *= shopProps[game.shopChoice].multiplier;
@@ -157,10 +162,26 @@ bool game_update() {
 
             game.cookiePerSecond = updateCPS();
         }
+
+        // Scrolling
+        if (unlocks != 0) {
+            if (kDown & KEY_DOWN) {
+                game.shopChoice++;
+                if (game.shopChoice == unlocks + 1) {
+                    game.shopChoice = 0;
+                }
+            } else if (kDown & KEY_UP) {
+                game.shopChoice--;
+                if (game.shopChoice == -1) {
+                    game.shopChoice = unlocks;
+                }
+            }
+        }
+        
     }
 
     int productSpawn = 0;
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < MAX_PRODUCTS; i++) {
         bool unlocked = game.cookies >= (int)shopProps[i].price;
         if (!shopProps[i].unlocked && unlocked) {
             shopProps[i].unlocked = true;
@@ -171,17 +192,18 @@ bool game_update() {
                 char path[256];
                 snprintf(path, sizeof(path), "romfs:/assets/product/%s.t3x", shopProps[i].name);
                 shopProps[i].img = UTILS_loadImage(path);
+                unlocks++;
             }
 
             // Draw the things.
-            C2D_DrawImageAtRotated(game.sprites.productInfo, 0, 30 + (30 * productSpawn), 0, UTILS_angleToRadians(180), NULL, 1.75, 1.1);
-            C2D_DrawImageAt(shopProps[i].img, 2, 21 + (30 * productSpawn), 0, NULL, 0.6, 0.75);
-            C2D_DrawImageAt(game.sprites.smallCookie, 19, 32 + (30 * productSpawn), 0, NULL, 0.15, 0.15);
+            C2D_DrawImageAtRotated(game.sprites.productInfo, 0, 30 + (28 * productSpawn), 0, UTILS_angleToRadians(180), NULL, 1.75, 1.1);
+            C2D_DrawImageAt(shopProps[i].img, 2, 21 + (26 * productSpawn), 0, NULL, 0.6, 0.75);
+            C2D_DrawImageAt(game.sprites.smallCookie, 19, 32 + (28 * productSpawn), 0, NULL, 0.15, 0.15);
             
             char cost[32];
             snprintf(cost, sizeof(cost), "%d", (int)shopProps[i].price);
-            UTILS_quickRenderText(cost, 27, 31 + (30 * productSpawn), unlocked ? game.green : game.red, 0.28);
-            UTILS_quickRenderText(shopProps[i].name, 18, 19 + (30 * productSpawn), game.white, 0.45);
+            UTILS_quickRenderText(cost, 27, 31 + (28 * productSpawn), unlocked ? game.green : game.red, 0.28);
+            UTILS_quickRenderText(shopProps[i].name, 18, 19 + (28 * productSpawn), game.white, 0.45);
 
             // Increment.
             productSpawn++;

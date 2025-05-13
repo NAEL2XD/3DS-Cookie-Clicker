@@ -11,7 +11,6 @@ int main() {
     gfxInitDefault();
     romfsInit();
     cfguInit();
-    aptSetHomeAllowed(false); // Removed consoleInit
 
     C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
     C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);

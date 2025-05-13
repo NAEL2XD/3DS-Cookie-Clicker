@@ -7,10 +7,10 @@
 Currently, those are supported:
 - Images.
 - Controls.
+- Stats.
 
 Currently in the works:
 - More products.
-- Stats.
 - Saving, loading.
 - Sounds.
 - Minigames.

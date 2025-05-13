@@ -4,6 +4,7 @@
 #include "main.h"
 
 int game_init();
-bool game_update();
+bool game_updateTOP();
+bool game_updateBOTTOM();
 
 #endif

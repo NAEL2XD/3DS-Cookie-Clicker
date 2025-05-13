@@ -26,6 +26,7 @@ typedef struct {
     u32 green;
     u32 black;
     u32 white;
+    float upgradeColor;
 
     // Shop Properties
     bool shopUnlocked;
@@ -78,10 +79,11 @@ int game_init() {
     game.shopChoice   = 0;
 
     // Initialize Colors
-    game.red   = C2D_Color32(255,   0, 0,   255);
-    game.green = C2D_Color32(0,   255, 0,   255);
-    game.black = C2D_Color32(0,   0,   0,   255);
-    game.white = C2D_Color32(255, 255, 255, 255);
+    game.red          = C2D_Color32(255,   0, 0,   255);
+    game.green        = C2D_Color32(0,   255, 0,   255);
+    game.black        = C2D_Color32(0,   0,   0,   255);
+    game.white        = C2D_Color32(255, 255, 255, 255);
+    game.upgradeColor = 0;
 
     // Initialize Images
     game.sprites.cookie      = UTILS_loadImage("romfs:/assets/cookie.t3x");
@@ -92,32 +94,16 @@ int game_init() {
 }
 
 int unlocks = -1;
+float finalSize = 0;
 u64 timerCPS = 0;
-bool game_update() {
-    u64 runningTime = UTILS_getRunningTime();
+u64 runningTime;
+bool game_updateTOP() {
+    runningTime = UTILS_getRunningTime();
 
-    // Controls
-    if ((kDown & KEY_A) && !game.onShop) {
-        game.cookies += game.cookiePerPress;
-        game.textSize = 0.5;
-            
-        if (stCount < 50) {
-            char final[16];
-            snprintf(final, sizeof(final), "+%d", (int)game.cookiePerPress);
-            
-            // Add new text to spawnedText array
-            snprintf(spawnedText[stCount].text, sizeof(spawnedText[stCount].text), "%s", final);
-            spawnedText[stCount].x = (rand() % 133) + 115;
-            spawnedText[stCount].y = (rand() % 80) + 80;
-            spawnedText[stCount].alpha = 255;
-            
-            stCount++;
-        }
-    }
-
-    if ((kDown & KEY_LEFT) && game.shopUnlocked && !game.onShop) {
+    if ((kDown & KEY_DLEFT) && game.shopUnlocked && !game.onShop) {
+        game.shopChoice = 0;
         game.onShop = true;
-    } else if ((kDown & KEY_RIGHT) && game.onShop) {
+    } else if ((kDown & KEY_DRIGHT) && game.onShop) {
         game.onShop = false;
     }
 
@@ -133,36 +119,21 @@ bool game_update() {
     char cpsShit[64];
     snprintf(cpsShit, sizeof(cpsShit), "%.1f cookies per second.", game.cookiePerSecond);
 
-    float finalSize = -(game.textSize / 6);
+    finalSize = -(game.textSize / 6);
     UTILS_renderBorderText(cookieShit, -1, -10 + (20 / (game.textSize + 1)), 1, game.textSize + 1);
-    UTILS_quickRenderText(cpsShit, -1, 40 + (game.textSize * 8), game.white, 0.5);
-    C2D_DrawImageAtRotated(game.sprites.cookie, 200 + (finalSize * 6), 128 + (finalSize * 6), 0, sin((float)runningTime / 512) / 8, NULL, finalSize + 1.2, finalSize + 1.2);
-    game.textSize /= 1.1;
-
-    for (int i = 0; i < stCount; i++) {
-        UTILS_quickRenderText(spawnedText[i].text, spawnedText[i].x, spawnedText[i].y, C2D_Color32(255, 255, 255, spawnedText[i].alpha), 1);
-        spawnedText[i].alpha -= 5;
-        spawnedText[i].y -= 0.8;
-
-        if (spawnedText[i].alpha < 0) {
-            // Remove the text by shifting remaining entries
-            for (int j = i; j < stCount - 1; j++) {
-                spawnedText[j] = spawnedText[j + 1];
-            }
-
-            stCount--;
-            i--; // Adjust index after removal
-        }
-    }
+    UTILS_quickRenderText(cpsShit, -1, 40 + (game.textSize * 8), C2D_Color32(255 - game.upgradeColor, 255, 255 - game.upgradeColor, 255), 0.5);
+    game.textSize     /= 1.1;
+    game.upgradeColor /= 1.075;
 
     if (game.onShop) {
-        C2D_DrawRectSolid(0, 15 + (28 * game.shopChoice), 0, 101, 30, C2D_Color32(255, 255, 0, 255));
+        C2D_DrawRectSolid(0, 14 + (30 * game.shopChoice), 0, 114, 32, C2D_Color32(255, 255, 0, 255));
         if (kDown & KEY_A && game.cookies >= (int)shopProps[game.shopChoice].price) {
             game.cookies -= shopProps[game.shopChoice].price;
             shopProps[game.shopChoice].price *= shopProps[game.shopChoice].multiplier;
             shopProps[game.shopChoice].own++;
 
             game.cookiePerSecond = updateCPS();
+            game.upgradeColor = 255;
         }
 
         // Scrolling
@@ -179,7 +150,6 @@ bool game_update() {
                 }
             }
         }
-        
     }
 
     int productSpawn = 0;
@@ -198,14 +168,14 @@ bool game_update() {
             }
 
             // Draw the things.
-            C2D_DrawImageAtRotated(game.sprites.productInfo, 0, 30 + (28 * productSpawn), 0, UTILS_angleToRadians(180), NULL, 1.75, 1.1);
-            C2D_DrawImageAt(shopProps[i].img, 2, 21 + (28 * productSpawn), 0, NULL, 0.6, 0.75);
-            C2D_DrawImageAt(game.sprites.smallCookie, 19, 32 + (28 * productSpawn), 0, NULL, 0.15, 0.15);
+            C2D_DrawImageAtRotated(game.sprites.productInfo, 0, 30 + (30 * productSpawn), 0, UTILS_angleToRadians(180), NULL, 2, 1.25);
+            C2D_DrawImageAt(shopProps[i].img, 2, 19 + (30 * productSpawn), 0, NULL, 0.75, 0.9);
+            C2D_DrawImageAt(game.sprites.smallCookie, 21, 32.5 + (30 * productSpawn), 0, NULL, 0.175, 0.175);
             
             char cost[32];
             snprintf(cost, sizeof(cost), "%d", (int)shopProps[i].price);
-            UTILS_quickRenderText(cost, 27, 31 + (28 * productSpawn), unlocked ? game.green : game.red, 0.28);
-            UTILS_quickRenderText(shopProps[i].name, 18, 19 + (28 * productSpawn), game.black, 0.45);
+            UTILS_quickRenderText(cost, 31, 31 + (30 * productSpawn), unlocked ? game.green : game.red, 0.35);
+            UTILS_quickRenderText(shopProps[i].name, 21, 18 + (30 * productSpawn), game.black, 0.5);
 
             // Increment.
             productSpawn++;
@@ -215,6 +185,53 @@ bool game_update() {
     if (runningTime - timerCPS > 1000) {
         game.cookies += game.cookiePerSecond;
         timerCPS = runningTime;
+    }
+
+    return false;
+}
+
+bool alreadyTouching = false;
+bool game_updateBOTTOM() {
+    // Controls
+    if (UTILS_isTouchingImage(game.sprites.cookie, 160 + (finalSize * 6) - 62, 128 + (finalSize * 6) - 65, finalSize + 1.33) && !game.onShop && !alreadyTouching) {
+        game.cookies += game.cookiePerPress;
+        game.textSize += 0.2;
+            
+        if (stCount < 50) {
+            char final[16];
+            snprintf(final, sizeof(final), "+%d", (int)game.cookiePerPress);
+
+            touchPosition touch;
+            hidTouchRead(&touch);
+            
+            // Add new text to spawnedText array
+            snprintf(spawnedText[stCount].text, sizeof(spawnedText[stCount].text), "%s", final);
+            spawnedText[stCount].x = touch.px - 14;
+            spawnedText[stCount].y = touch.py - 6;
+            spawnedText[stCount].alpha = 255;
+            
+            stCount++;
+        }
+    }
+    alreadyTouching = UTILS_isTouchingImage(game.sprites.cookie, 160 + (finalSize * 6) - 62, 128 + (finalSize * 6) - 65, finalSize + 1.33);
+
+    C2D_DrawImageAt(game.sprites.background, -4, 0, 0, NULL, 1, 1);
+    C2D_DrawImageAtRotated(game.sprites.cookie, 160 + (finalSize * 6), 128 + (finalSize * 6), 0, sin((float)runningTime / 512) / 8, NULL, finalSize + 1.33, finalSize + 1.33);
+
+    for (int i = 0; i < stCount; i++) {
+        UTILS_quickRenderText(spawnedText[i].text, spawnedText[i].x, spawnedText[i].y, C2D_Color32(255, 255, 255, spawnedText[i].alpha), 1);
+        spawnedText[i].alpha -= 3;
+        spawnedText[i].y -= 0.8;
+
+        if (spawnedText[i].alpha < 0) {
+            // Remove the text by shifting remaining entries
+            for (int j = i; j < stCount - 1; j++) {
+                spawnedText[j] = spawnedText[j + 1];
+            }
+
+            stCount--;
+            i--; // Adjust index after removal
+        }
     }
 
     return false;

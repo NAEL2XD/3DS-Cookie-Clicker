@@ -56,4 +56,14 @@ C2D_Image UTILS_loadImage(char *file);
 **/
 double UTILS_angleToRadians(double angle);
 
+/**
+    @brief Returns whatever if it's touching the image or not in the bottom screen.
+    @param img The image to use and check if it's touching.
+    @param x The X Position of the image.
+    @param y The Y Position of the image.
+    @param size The Size of the image.
+    @return `true` if it collides and is touching the image, `false` otherwise.
+**/
+bool UTILS_isTouchingImage(C2D_Image img, float x, float y, float size);
+
 #endif

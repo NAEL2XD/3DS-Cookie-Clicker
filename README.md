@@ -21,7 +21,7 @@ Like this game? Give it a star on GitHub!
 
 # KEYBINDS:
 ## GAME (not in shop)
-<kbd>A</kbd>: Click and gain cookie(s).
+<kbd>Touch</kbd>: if you touch the cookie, you will gain cookie(s).
 
 <kbd>DPAD LEFT</kbd>: Open shop.
 

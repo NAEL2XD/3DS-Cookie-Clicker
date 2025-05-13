@@ -101,3 +101,11 @@ double UTILS_angleToRadians(double angle) {
 
     return angle * (M_PI / 180.0);
 }
+
+bool UTILS_isTouchingImage(C2D_Image img, float x, float y, float size) {
+    touchPosition touch;
+    hidTouchRead(&touch);
+
+    bool collision = (x < touch.px && x + img.tex->width > touch.px && y < touch.py && y + img.tex->height > touch.py);
+    return collision;
+}

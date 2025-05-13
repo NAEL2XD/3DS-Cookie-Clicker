@@ -6,43 +6,49 @@
 
 int state = 1;
 u32 kDown = 0;
+
 int main() {
     gfxInitDefault();
     romfsInit();
     cfguInit();
-    consoleInit(GFX_BOTTOM, NULL);
+    aptSetHomeAllowed(false); // Removed consoleInit
 
     C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
     C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
     C2D_Prepare();
-    C3D_RenderTarget *top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
 
     UTILS_Init();
     game_init();
+
+    C3D_RenderTarget* pos[2] = {
+        C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT),
+        C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT)
+    };
 
     while (aptMainLoop()) {
         hidScanInput();
         kDown = hidKeysDown();
 
         C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-        C2D_TargetClear(top, C2D_Color32(0x68, 0xB0, 0xD8, 0xFF));
-        C2D_SceneBegin(top);
+        for (int i = 0; i < 2; i++) {
+            C2D_TargetClear(pos[i], C2D_Color32(0x68, 0xB0, 0xD8, 0xFF));
+            C2D_SceneBegin(pos[i]);
 
-        bool exit = false;
-        switch (state) {
-            case 1:
-                exit = game_update();
-                break;
+            bool exit = false;
+            switch (state) {
+                case 1:
+                    exit = (i == 0) ? game_updateTOP() : game_updateBOTTOM();
+                    break;
+            }
+
+            if (exit) break;
         }
-
-        if (exit) break;
-
         C3D_FrameEnd(0);
     }
 
     C3D_Fini();
     C2D_Fini();
-    romfsInit();
+    romfsExit();
     cfguExit();
     gfxExit();
     return 0;

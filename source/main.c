@@ -29,12 +29,12 @@ int main() {
         hidScanInput();
         kDown = hidKeysDown();
 
+        bool exit = false;
         C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
         for (int i = 0; i < 2; i++) {
             C2D_TargetClear(pos[i], C2D_Color32(0x68, 0xB0, 0xD8, 0xFF));
             C2D_SceneBegin(pos[i]);
 
-            bool exit = false;
             switch (state) {
                 case 1:
                     exit = (i == 0) ? game_updateTOP() : game_updateBOTTOM();
@@ -43,6 +43,7 @@ int main() {
 
             if (exit) break;
         }
+        if (exit) break;
         C3D_FrameEnd(0);
     }
 

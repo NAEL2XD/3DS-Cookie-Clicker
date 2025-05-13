@@ -20,6 +20,7 @@ typedef struct {
 	float textSize;
 	float cookiePerPress;
     float cookiePerSecond;
+    bool  onStats;
 
     // Color
     u32 red;
@@ -39,6 +40,21 @@ typedef struct {
         C2D_Image productInfo;
         C2D_Image smallCookie;
     } sprites;
+
+    struct {
+        bool cookie;
+        bool statButton;
+    } touching;
+
+    struct {
+        int   clicks;
+        float totals;
+    } stats;
+
+    struct {
+        C2D_Font vcr;
+    } fonts;
+    
 } gameState;
 gameState game;
 
@@ -66,12 +82,20 @@ float updateCPS() {
     return total;
 }
 
+C2D_TextBuf d;
 int game_init() {
+    d = C2D_TextBufNew(4096);
+
     // Initialize Variables
     game.cookies  = 0;
     game.textSize = 0;
     game.cookiePerPress = 1.0;
     game.cookiePerSecond = 0.0;
+    game.onStats = true;
+    game.fonts.vcr = C2D_FontLoad("romfs:/fonts/vcr.bcfnt");
+
+    // Initialize Stats
+    game.stats.clicks = 0;
 
     // Shop Properties
     game.shopUnlocked = false;
@@ -119,11 +143,12 @@ bool game_updateTOP() {
     snprintf(cpsShit, sizeof(cpsShit), "%.1f cookies per second.", game.cookiePerSecond);
 
     finalSize = -(game.textSize / 6);
-    UTILS_renderBorderText(cookieShit, -1, -10 + (20 / (game.textSize + 1)), 1, game.textSize + 1);
-    UTILS_quickRenderText(cpsShit, -1, 40 + (game.textSize * 8), C2D_Color32(255 - game.upgradeColor, 255, 255 - game.upgradeColor, 255), 0.5);
+    UTILS_renderBorderText(cookieShit, -1, -10 + (20 / (game.textSize + 1)), 1, game.textSize + 1, NULL);
+    UTILS_quickRenderText(cpsShit, -1, 40 + (game.textSize * 8), C2D_Color32(255 - game.upgradeColor, 255, 255 - game.upgradeColor, 255), 0.5, NULL);
     game.textSize     /= 1.1;
     game.upgradeColor /= 1.075;
-    game.cookies += game.cookiePerSecond / 60;
+    game.cookies      += game.cookiePerSecond / 60;
+    game.stats.totals += game.cookiePerSecond / 60;
 
     if (game.onShop) {
         C2D_DrawRectSolid(0, 14 + (30 * game.shopChoice), 0, 114, 32, C2D_Color32(255, 255, 0, 255));
@@ -174,8 +199,8 @@ bool game_updateTOP() {
             
             char cost[32];
             snprintf(cost, sizeof(cost), "%d", (int)shopProps[i].price);
-            UTILS_quickRenderText(cost, 31, 31 + (30 * productSpawn), unlocked ? game.green : game.red, 0.35);
-            UTILS_quickRenderText(shopProps[i].name, 21, 18 + (30 * productSpawn), game.black, 0.5);
+            UTILS_quickRenderText(cost, 31, 31 + (30 * productSpawn), unlocked ? game.green : game.red, 0.35, NULL);
+            UTILS_quickRenderText(shopProps[i].name, 21, 18 + (30 * productSpawn), game.black, 0.5, NULL);
 
             // Increment.
             productSpawn++;
@@ -185,49 +210,95 @@ bool game_updateTOP() {
     return false;
 }
 
-bool alreadyTouching = false;
+typedef struct {
+    char* name;
+    float value;
+    bool  isInt;
+} statUI;
 bool game_updateBOTTOM() {
-    // Controls
-    if (UTILS_isTouchingImage(game.sprites.cookie, 160 + (finalSize * 6) - 62, 128 + (finalSize * 6) - 65, finalSize + 1.33) && !game.onShop && !alreadyTouching) {
-        game.cookies += game.cookiePerPress;
-        game.textSize += 0.2;
-            
-        if (stCount < 50) {
-            char final[16];
-            snprintf(final, sizeof(final), "+%d", (int)game.cookiePerPress);
+    if (game.onStats) {
+        statUI blocks[2] = {
+            {"Cookie Clicks", game.stats.clicks, true},
+            {"Total Cookies", game.stats.totals, false}
+        };
 
-            touchPosition touch;
-            hidTouchRead(&touch);
-            
-            // Add new text to spawnedText array
-            snprintf(spawnedText[stCount].text, sizeof(spawnedText[stCount].text), "%s", final);
-            spawnedText[stCount].x = touch.px - 14;
-            spawnedText[stCount].y = touch.py - 6;
-            spawnedText[stCount].alpha = 255;
-            
-            stCount++;
-        }
-    }
-    alreadyTouching = UTILS_isTouchingImage(game.sprites.cookie, 160 + (finalSize * 6) - 62, 128 + (finalSize * 6) - 65, finalSize + 1.33);
-
-    C2D_DrawImageAt(game.sprites.background, -4, 0, 0, NULL, 1, 1);
-    C2D_DrawImageAtRotated(game.sprites.cookie, 160 + (finalSize * 6), 128 + (finalSize * 6), 0, sin((float)runningTime / 512) / 8, NULL, finalSize + 1.33, finalSize + 1.33);
-
-    for (int i = 0; i < stCount; i++) {
-        UTILS_quickRenderText(spawnedText[i].text, spawnedText[i].x, spawnedText[i].y, C2D_Color32(255, 255, 255, spawnedText[i].alpha), 1);
-        spawnedText[i].alpha -= 3;
-        spawnedText[i].y -= 0.8;
-
-        if (spawnedText[i].alpha < 0) {
-            // Remove the text by shifting remaining entries
-            for (int j = i; j < stCount - 1; j++) {
-                spawnedText[j] = spawnedText[j + 1];
+        // Inside the if (game.onStats) block:
+        for (int i = 0; i < 2; i++) {
+            char var[24];
+            snprintf(var, sizeof(var), "%.1f", blocks[i].value); // Note: '.' instead of '->'
+            if (blocks[i].isInt) {
+                snprintf(var, sizeof(var), "%i", (int)blocks[i].value);
             }
+        
+            // Calculate text width
+            C2D_Text text;
+            C2D_TextBufClear(d);
+            C2D_TextFontParse(&text, game.fonts.vcr, d, var);
+            C2D_TextOptimize(&text);
+        
+            // Right-align within the 306px wide background (x=6 to x=312)
+            float xPos = 306 - (text.width * 1.14); // 8px padding from right edge
+        
+            C2D_DrawRectSolid(6, 33 + (34 * i), 0, 306, 2, game.white);
+            UTILS_quickRenderText(blocks[i].name, 8, 10 + (34 * i), game.white, 0.8, NULL);
+            UTILS_quickRenderText(var, xPos, 2 + (34 * i), game.white, 1, game.fonts.vcr);
+        }
+    } else {
+        // Controls
+        if (UTILS_isTouchingImage(game.sprites.cookie, 160 + (finalSize * 6) - 62, 128 + (finalSize * 6) - 65, finalSize + 1.33) && !game.onShop && !game.touching.cookie) {
+            game.cookies      += game.cookiePerPress;
+            game.stats.totals += game.cookiePerPress;
+            game.textSize += 0.2;
 
-            stCount--;
-            i--; // Adjust index after removal
+            if (stCount < 50) {
+                char final[16];
+                snprintf(final, sizeof(final), "+%d", (int)game.cookiePerPress);
+
+                touchPosition touch;
+                hidTouchRead(&touch);
+
+                // Add new text to spawnedText array
+                snprintf(spawnedText[stCount].text, sizeof(spawnedText[stCount].text), "%s", final);
+                spawnedText[stCount].x = touch.px - 14;
+                spawnedText[stCount].y = touch.py - 6;
+                spawnedText[stCount].alpha = 255;
+
+                stCount++;
+                game.stats.clicks++;
+            }
+        }
+        game.touching.cookie = UTILS_isTouchingImage(game.sprites.cookie, 160 + (finalSize * 6) - 62, 128 + (finalSize * 6) - 65, finalSize + 1.33);
+
+        C2D_DrawImageAt(game.sprites.background, -4, 0, 0, NULL, 1, 1);
+        C2D_DrawImageAtRotated(game.sprites.cookie, 160 + (finalSize * 6), 128 + (finalSize * 6), 0, sin((float)runningTime / 512) / 8, NULL, finalSize + 1.33, finalSize + 1.33);
+
+        for (int i = 0; i < stCount; i++) {
+            UTILS_quickRenderText(spawnedText[i].text, spawnedText[i].x, spawnedText[i].y, C2D_Color32(255, 255, 255, spawnedText[i].alpha), 1, NULL);
+            spawnedText[i].alpha -= 3;
+            spawnedText[i].y -= 0.8;
+
+            if (spawnedText[i].alpha < 0) {
+                // Remove the text by shifting remaining entries
+                for (int j = i; j < stCount - 1; j++) {
+                    spawnedText[j] = spawnedText[j + 1];
+                }
+
+                stCount--;
+                i--; // Adjust index after removal
+            }
         }
     }
+
+    char gs[6];
+    snprintf(gs, sizeof(gs), "%s", game.onStats ? "Game" : "Stats");
+    C2D_DrawRectSolid(238, 203, 0, 90, 90, C2D_Color32(255, 255, 255, 255));
+    C2D_DrawRectSolid(240, 205, 0, 90, 90, C2D_Color32(0,   0,   0,   255));
+    UTILS_quickRenderText(gs, 250 - (4 * game.onStats), 208, game.white, 1, NULL);
+
+    if (UTILS_isTouchingHitbox(238, 203, 90, 90) && !game.touching.statButton) {
+        game.onStats = !game.onStats;
+    }
+    game.touching.statButton = UTILS_isTouchingHitbox(235, 200, 90, 90);
 
     return false;
 }

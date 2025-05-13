@@ -13,6 +13,9 @@ u32 textColor;
 // Time Functions
 u64 oldTime = 0;
 
+// Touch Functions
+touchPosition touch;
+
 // Use custom function to init first before starting process.
 bool initialized = false;
 void initBeforeProcess() {
@@ -20,8 +23,8 @@ void initBeforeProcess() {
 
     // TEXT
     // If some are NULL, set their default value.
-    if (defaultFont == NULL) defaultFont = C2D_FontLoadSystem(CFG_REGION_USA);
-    if (g_staticBuf == NULL) g_staticBuf = C2D_TextBufNew(4096);
+    defaultFont = C2D_FontLoadSystem(CFG_REGION_USA);
+    g_staticBuf = C2D_TextBufNew(4096);
     borderColor = C2D_Color32(0,   0,   0,  0xAA);
     textColor   = C2D_Color32(255, 255, 255, 255);
     
@@ -40,12 +43,12 @@ void UTILS_Init() {
     initBeforeProcess();
 }
 
-void UTILS_renderBorderText(const char *text, float x, float y, float borderSize, float size) {
+void UTILS_renderBorderText(const char *text, float x, float y, float borderSize, float size, C2D_Font font) {
     initBeforeProcess();
     
     // Clear and Parse to make text work.
     C2D_TextBufClear(g_staticBuf);
-    C2D_TextFontParse(&renderText, defaultFont, g_staticBuf, text);
+    C2D_TextFontParse(&renderText, font ? font : defaultFont, g_staticBuf, text);
     C2D_TextOptimize(&renderText);
 
     // Center X 
@@ -60,12 +63,12 @@ void UTILS_renderBorderText(const char *text, float x, float y, float borderSize
     C2D_DrawText(&renderText, C2D_WithColor, x, y, 0.5f, size, size, textColor);
 }
 
-void UTILS_quickRenderText(const char *text, float x, float y, u32 col, float size) {
+void UTILS_quickRenderText(const char *text, float x, float y, u32 col, float size, C2D_Font font) {
     initBeforeProcess();
     
     // Clear and Parse to make text work.
     C2D_TextBufClear(g_staticBuf);
-    C2D_TextFontParse(&renderText, defaultFont, g_staticBuf, text);
+    C2D_TextFontParse(&renderText, font ? font : defaultFont, g_staticBuf, text);
     C2D_TextOptimize(&renderText);
 
     // Center X 
@@ -103,9 +106,11 @@ double UTILS_angleToRadians(double angle) {
 }
 
 bool UTILS_isTouchingImage(C2D_Image img, float x, float y, float size) {
-    touchPosition touch;
     hidTouchRead(&touch);
+    return (x < touch.px && x + img.tex->width > touch.px && y < touch.py && y + img.tex->height > touch.py);
+}
 
-    bool collision = (x < touch.px && x + img.tex->width > touch.px && y < touch.py && y + img.tex->height > touch.py);
-    return collision;
+bool UTILS_isTouchingHitbox(float x, float y, float width, float height) {
+    hidTouchRead(&touch);
+    return (x < touch.px && x + width > touch.px && y < touch.py && y + height > touch.py);
 }

@@ -18,8 +18,9 @@ void UTILS_Init();
     @param borderSize Size for the border in pixels to draw.
     @param size Size for the text to draw.
                 `NOTE` that `borderSize` will be multiplied by `size`!
+    @param font *(Optional)* Font to use, can be NULL for default nintendo font.
 **/
-void UTILS_renderBorderText(const char *text, float x, float y, float borderSize, float size);
+void UTILS_renderBorderText(const char *text, float x, float y, float borderSize, float size, C2D_Font font);
 
 /**
     Quickly renders a bordered text without having to use any special variables.
@@ -31,8 +32,9 @@ void UTILS_renderBorderText(const char *text, float x, float y, float borderSize
     @param y The y position to draw in.
     @param col u32 color to set as. Optional, can be `NULL` (will be white).
     @param size Size for the text to draw. NOTE that `borderSize` will be multiplied by `size`!
+    @param font *(Optional)* Font to use, can be NULL for default nintendo font.
 **/
-void UTILS_quickRenderText(const char *text, float x, float y, u32 col, float size);
+void UTILS_quickRenderText(const char *text, float x, float y, u32 col, float size, C2D_Font font);
 
 /**
     @brief Gets the current time the application has ran.
@@ -65,5 +67,18 @@ double UTILS_angleToRadians(double angle);
     @return `true` if it collides and is touching the image, `false` otherwise.
 **/
 bool UTILS_isTouchingImage(C2D_Image img, float x, float y, float size);
+
+/**
+    @brief Same as `UTILS_isTouchingImage` but it's a hitbox instead.
+
+    Returns whatever if it's touching the hitbox or not in the bottom screen.
+
+    @param x The X Position of the hitbox.
+    @param y The Y Position of the hitbox.
+    @param width The Width of the hitbox.
+    @param height The Height of the hitbox.
+    @return `true` if it collides and is touching the hitbox, `false` otherwise.
+**/
+bool UTILS_isTouchingHitbox(float x, float y, float width, float height);
 
 #endif

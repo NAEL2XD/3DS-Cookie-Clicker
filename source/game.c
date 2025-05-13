@@ -95,7 +95,6 @@ int game_init() {
 
 int unlocks = -1;
 float finalSize = 0;
-u64 timerCPS = 0;
 u64 runningTime;
 bool game_updateTOP() {
     runningTime = UTILS_getRunningTime();
@@ -124,6 +123,7 @@ bool game_updateTOP() {
     UTILS_quickRenderText(cpsShit, -1, 40 + (game.textSize * 8), C2D_Color32(255 - game.upgradeColor, 255, 255 - game.upgradeColor, 255), 0.5);
     game.textSize     /= 1.1;
     game.upgradeColor /= 1.075;
+    game.cookies += game.cookiePerSecond / 60;
 
     if (game.onShop) {
         C2D_DrawRectSolid(0, 14 + (30 * game.shopChoice), 0, 114, 32, C2D_Color32(255, 255, 0, 255));
@@ -180,11 +180,6 @@ bool game_updateTOP() {
             // Increment.
             productSpawn++;
         }
-    }
-
-    if (runningTime - timerCPS > 1000) {
-        game.cookies += game.cookiePerSecond;
-        timerCPS = runningTime;
     }
 
     return false;

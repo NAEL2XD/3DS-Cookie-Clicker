@@ -8,10 +8,10 @@ Currently, those are supported:
 - Images.
 - Controls.
 - Stats.
+- Saving, loading.
 
 Currently in the works:
 - More products.
-- Saving, loading.
 - Sounds.
 - Minigames.
 - Golden Cookies.

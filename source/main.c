@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdlib.h>
+#include <dirent.h>
 #include "utils.h"
 #include "main.h"
 #include "game.h"
@@ -24,6 +25,9 @@ int main() {
         C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT)
     };
 
+    mkdir("sdmc:/Nael2xd", 0777);
+    mkdir("sdmc:/Nael2xd/CookieClicker", 0777);
+    
     while (aptMainLoop()) {
         hidScanInput();
         kDown = hidKeysDown();

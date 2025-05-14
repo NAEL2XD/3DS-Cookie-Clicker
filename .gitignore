@@ -45,3 +45,6 @@ output/
 
 # Visual Studio
 .vscode/*
+
+# Extras
+main.py

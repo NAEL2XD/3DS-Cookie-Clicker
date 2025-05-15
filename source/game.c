@@ -322,7 +322,7 @@ bool game_updateBOTTOM() {
         }
     } else {
         // Controls
-        if (UTILS_isTouchingImage(game.sprites.cookie, 160 + (finalSize * 6) - 62, 128 + (finalSize * 6) - 65, finalSize + 1.33) && !game.onShop && !game.touching.cookie) {
+        if (UTILS_isTouchingImage(game.sprites.cookie, 160 + (finalSize * 6) - 62, 128 + (finalSize * 6) - 65, finalSize + 1.33) && !game.touching.cookie) {
             save.cookies      += save.cookiePerPress;
             save.stats.totals += save.cookiePerPress;
             save.stats.clicks++;

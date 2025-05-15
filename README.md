@@ -20,12 +20,17 @@ Currently in the works:
 Like this game? Give it a star on GitHub!
 
 # KEYBINDS:
-## GAME (not in shop)
-<kbd>Touch</kbd>: if you touch the cookie, you will gain cookie(s).
+## GAME (not in shop and not in stats)
+<kbd>Touch (Cookie)</kbd>: You will gain cookie(s).
+
+<kbd>Touch (Stats)</kbd>: You will see all of your stats.
 
 <kbd>DPAD LEFT</kbd>: Open shop.
 
 <kbd>START</kbd>: Exit.
+
+## GAME (not in shop and in stats)
+<kbd>Touch (Game)</kbd>: You will go back to in game.
 
 ## GAME (in shop)
 <kbd>A</kbd>: Buy the current product.

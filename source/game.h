@@ -3,7 +3,7 @@
 
 #include "main.h"
 
-int game_init();
+void game_init();
 bool game_updateTOP();
 bool game_updateBOTTOM();
 

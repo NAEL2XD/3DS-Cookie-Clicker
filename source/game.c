@@ -1,4 +1,3 @@
-#include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "utils.h"
@@ -77,6 +76,7 @@ typedef struct {
     struct {
         int   clicks;
         float totals;
+        int   time;
     } stats;
 
     ShopItem shopProps[MAX_PRODUCTS];
@@ -92,7 +92,7 @@ float updateCPS() {
 }
 
 C2D_TextBuf d;
-int game_init() {
+void game_init() {
     d = C2D_TextBufNew(4096);
 
     // Initialize Variables
@@ -106,6 +106,7 @@ int game_init() {
     // Initialize Stats
     save.stats.clicks = 0;
     save.stats.totals = 0;
+    save.stats.time   = 0;
 
     // Shop Properties
     save.shopUnlocked = false;
@@ -131,7 +132,7 @@ int game_init() {
     game.sprites.smallCookie = UTILS_loadImage("romfs:/assets/smallCookie.t3x");
 
     FILE *fp = fopen(SAVE_PATH, "rb");
-    if (!fp) goto exit; // If file doesn't exist, go to exit.
+    if (!fp) return; // If file doesn't exist, return to stop the other functions.
     unsigned char checksum = 0;
     while (!feof(fp) && !ferror(fp)) {
         checksum ^= fgetc(fp);
@@ -154,16 +155,15 @@ int game_init() {
         remove(SAVE_PATH);
         remove(csPath);
     }
-
-    exit:
-    return 0;
 }
 
 int unlocks = -1;
 float finalSize = 0;
 u64 runningTime;
+u64 oldGTime = 0; // For stats.time
 bool game_updateTOP() {
     runningTime = UTILS_getRunningTime();
+    if (oldGTime == 0) oldGTime = runningTime;
 
     if ((kDown & KEY_DLEFT) && save.shopUnlocked && !game.onShop) {
         game.shopChoice = 0;
@@ -269,6 +269,11 @@ bool game_updateTOP() {
         }
     }
 
+    if (runningTime - oldGTime > 1000) {
+        save.stats.time++;
+        oldGTime = runningTime;
+    }
+
     UTILS_quickRenderText("Press [START] to exit.", -1, 215, C2D_Color32(255, 255, 255, 100), 0.75, NULL);
     return false;
 }
@@ -280,17 +285,26 @@ typedef struct {
 } statUI;
 bool game_updateBOTTOM() {
     if (game.onStats) {
-        statUI blocks[2] = {
+        statUI blocks[3] = {
             {"Cookie Clicks", save.stats.clicks, true},
-            {"Total Cookies", save.stats.totals, false}
+            {"Total Cookies", save.stats.totals, false},
+            {"Time Wasted",   save.stats.time,   true}
         };
 
         // Inside the if (game.onStats) block:
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 3; i++) {
             char var[24];
-            snprintf(var, sizeof(var), "%.1f", blocks[i].value); // Note: '.' instead of '->'
+            snprintf(var, sizeof(var), "%.1f", blocks[i].value);
             if (blocks[i].isInt) {
                 snprintf(var, sizeof(var), "%i", (int)blocks[i].value);
+            }
+        
+            // Handle time formatting
+            if (strcmp(blocks[i].name, "Time Wasted") == 0) {
+                int t = (int)blocks[i].value;
+                int m = t / 60;
+                int s = t % 60;
+                snprintf(var, sizeof(var), "%02d:%02d", m, s);
             }
         
             // Calculate text width
@@ -311,6 +325,7 @@ bool game_updateBOTTOM() {
         if (UTILS_isTouchingImage(game.sprites.cookie, 160 + (finalSize * 6) - 62, 128 + (finalSize * 6) - 65, finalSize + 1.33) && !game.onShop && !game.touching.cookie) {
             save.cookies      += save.cookiePerPress;
             save.stats.totals += save.cookiePerPress;
+            save.stats.clicks++;
             game.textSize += 0.2;
 
             if (stCount < 50) {
@@ -327,28 +342,26 @@ bool game_updateBOTTOM() {
                 spawnedText[stCount].alpha = 255;
 
                 stCount++;
-                save.stats.clicks++;
             }
         }
         game.touching.cookie = UTILS_isTouchingImage(game.sprites.cookie, 160 + (finalSize * 6) - 62, 128 + (finalSize * 6) - 65, finalSize + 1.33);
 
         C2D_DrawImageAt(game.sprites.background, -4, 0, 0, NULL, 1, 1);
         C2D_DrawImageAtRotated(game.sprites.cookie, 160 + (finalSize * 6), 128 + (finalSize * 6), 0, sin((float)runningTime / 512) / 8, NULL, finalSize + 1.33, finalSize + 1.33);
+    }
 
-        for (int i = 0; i < stCount; i++) {
-            UTILS_quickRenderText(spawnedText[i].text, spawnedText[i].x, spawnedText[i].y, C2D_Color32(255, 255, 255, spawnedText[i].alpha), 1, NULL);
-            spawnedText[i].alpha -= 3;
-            spawnedText[i].y -= 0.8;
+    for (int i = 0; i < stCount; i++) {
+        if (!game.onStats) UTILS_quickRenderText(spawnedText[i].text, spawnedText[i].x, spawnedText[i].y, C2D_Color32(255, 255, 255, spawnedText[i].alpha), 1, NULL);
+        spawnedText[i].alpha -= 3;
+        spawnedText[i].y -= 0.8;
 
-            if (spawnedText[i].alpha < 0) {
-                // Remove the text by shifting remaining entries
-                for (int j = i; j < stCount - 1; j++) {
-                    spawnedText[j] = spawnedText[j + 1];
-                }
-
-                stCount--;
-                i--; // Adjust index after removal
+        if (spawnedText[i].alpha < 0) {
+            // Remove the text by shifting remaining entries
+            for (int j = i; j < stCount - 1; j++) {
+                spawnedText[j] = spawnedText[j + 1];
             }
+            stCount--;
+            i--; // Adjust index after removal
         }
     }
     

@@ -130,11 +130,32 @@ int game_init() {
     game.sprites.productInfo = UTILS_loadImage("romfs:/assets/productInfo.t3x");
     game.sprites.smallCookie = UTILS_loadImage("romfs:/assets/smallCookie.t3x");
 
-    FILE *file = fopen(SAVE_PATH, "rb");
-    if (file != NULL) {
-        fread(&save, sizeof(SaveData), 1, file);
+    FILE *fp = fopen(SAVE_PATH, "rb");
+    if (!fp) goto exit; // If file doesn't exist, go to exit.
+    unsigned char checksum = 0;
+    while (!feof(fp) && !ferror(fp)) {
+        checksum ^= fgetc(fp);
     }
-    fclose(file);
+    fclose(fp);
+
+    unsigned char checksumCheck = 0;
+    const char* csPath = "sdmc:/Nael2xd/CookieClicker/checksum.txt";
+    FILE *c = fopen(csPath, "rb");
+    fread(&checksumCheck, sizeof(checksumCheck), 1, c);
+    fclose(c);
+
+    if (checksum == checksumCheck) { // Matches
+        FILE *file = fopen(SAVE_PATH, "rb");
+        if (file != NULL) {
+            fread(&save, sizeof(SaveData), 1, file);
+        }
+        fclose(file);
+    } else { // Doesn't match (corrupted!)
+        remove(SAVE_PATH);
+        remove(csPath);
+    }
+
+    exit:
     return 0;
 }
 
@@ -158,16 +179,19 @@ bool game_updateTOP() {
 
         const char* n = SAVE_PATH;
         FILE *file = fopen(n, "wb");
-        if (file == NULL) {
-            perror("Error opening file for writing");
-            exit(EXIT_FAILURE);
-        }
-        if (fwrite(&save, sizeof(SaveData), 1, file) != 1) {
-            perror("Error writing to file");
-            fclose(file);
-            exit(EXIT_FAILURE);
-        }
+        fwrite(&save, sizeof(SaveData), 1, file);
         fclose(file);
+
+        FILE *fp = fopen(n, "rb");
+        unsigned char checksum = 0;
+        while (!feof(fp) && !ferror(fp)) {
+            checksum ^= fgetc(fp);
+        }
+        fclose(fp);
+
+        FILE *c = fopen("sdmc:/Nael2xd/CookieClicker/checksum.txt", "wb");
+        fwrite(&checksum, sizeof(checksum), 1, c);
+        fclose(c);
 
         return true;
     }

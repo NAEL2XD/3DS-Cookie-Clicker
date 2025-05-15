@@ -316,7 +316,7 @@ bool game_updateBOTTOM() {
             // Right-align within the 306px wide background (x=6 to x=312)
             float xPos = 306 - (text.width * 1.14); // 8px padding from right edge
         
-            C2D_DrawRectSolid(6, 33 + (34 * i), 0, 306, 2, game.white);
+            C2D_DrawRectSolid(6, 33 + (34 * i), 0, 307, 2, game.white);
             UTILS_quickRenderText(blocks[i].name, 8, 10 + (34 * i), game.white, 0.8, NULL);
             UTILS_quickRenderText(var, xPos, 2 + (34 * i), game.white, 1, game.fonts.vcr);
         }

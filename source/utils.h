@@ -25,8 +25,6 @@ void UTILS_renderBorderText(const char *text, float x, float y, float borderSize
 /**
     Quickly renders a bordered text without having to use any special variables.
 
-    You cannot set any colored text since it's for "quick" rendering.
-
     @param text String text to write as.
     @param x The x position to draw in. If `x` is set to `-1` then it will make the text go in middle.
     @param y The y position to draw in.

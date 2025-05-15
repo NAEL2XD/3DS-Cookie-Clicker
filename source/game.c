@@ -269,6 +269,7 @@ bool game_updateTOP() {
         }
     }
 
+    UTILS_quickRenderText("Press [START] to exit.", -1, 215, C2D_Color32(255, 255, 255, 100), 0.75, NULL);
     return false;
 }
 
@@ -350,17 +351,17 @@ bool game_updateBOTTOM() {
             }
         }
     }
-
+    
     char gs[6];
     snprintf(gs, sizeof(gs), "%s", game.onStats ? "Game" : "Stats");
     C2D_DrawRectSolid(238, 203, 0, 90, 90, C2D_Color32(255, 255, 255, 255));
     C2D_DrawRectSolid(240, 205, 0, 90, 90, C2D_Color32(0,   0,   0,   255));
     UTILS_quickRenderText(gs, 250 - (4 * game.onStats), 208, game.white, 1, NULL);
-
+    
     if (UTILS_isTouchingHitbox(238, 203, 90, 90) && !game.touching.statButton) {
         game.onStats = !game.onStats;
     }
     game.touching.statButton = UTILS_isTouchingHitbox(235, 200, 90, 90);
-
+    
     return false;
 }

@@ -9,6 +9,8 @@ Currently, those are supported:
 - Controls.
 - Stats.
 - Saving, loading.
+- Notifications.
+- Errors.
 
 Currently in the works:
 - More products.

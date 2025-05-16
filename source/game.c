@@ -128,7 +128,16 @@ void game_init() {
     game.sprites.smallCookie = UTILS_loadImage("romfs:/assets/smallCookie.t3x");
 
     FILE *fp = fopen(SAVE_PATH, "rb");
-    if (!fp) return; // If file doesn't exist, return to stop the other functions.
+    if (!fp) {
+        UTILS_sendNotification("Welcome to Cookie Clicker.",
+            "Welcome to my own made\ncookie clicker.\n~Where gaining cookies gets way\ntoo addictive.~\n\nWhy do you see this? The "
+            "reason\nyou're seeing this is because you\ndo not have a save file in\n\nsdmc:/Nael2xd/CookieClicker/save.txt\n\n"
+            "Spend some cookies on products, see your stats on bottom right,\nand try to gain as many cookies\nas possible. "
+            "Just don't spend way\ntoo much time on it! :`)\n\nHave fun in cookie clicker!! The\ngame is always being updated\nand you "
+            "can check back for\nupdates on Universal Updater!\nEnjoy!!\n\nSource Code:\nhttps://github.com/NAEL2XD/\n3DS-Cookie-Clicker\n\n- Nael2xd"
+        );
+        return; // If file doesn't exist, return to stop the other functions.
+    }
     unsigned char checksum = 0;
     while (!feof(fp) && !ferror(fp)) {
         checksum ^= fgetc(fp);

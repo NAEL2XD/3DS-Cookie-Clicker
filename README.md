@@ -20,6 +20,7 @@ Currently in the works:
 - Upgrades.
 - Codes.
 - Achievements (i guess).
+- Easter Eggs.
 - Many More.
 
 Like this game? Give it a star on GitHub!

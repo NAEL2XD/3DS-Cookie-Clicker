@@ -83,5 +83,46 @@ bool UTILS_isTouchingHitbox(float x, float y, float width, float height);
     @return Char String with text inputted to user.
 **/
 char* UTILS_swkbdGetInputText();
+/**
+ * @brief Displays a blocking error popup with custom text
+ * 
+ * #### Features:
+ * 
+ * - Disables home button while active
+ * 
+ * - Uses system error dialog style
+ * 
+ * - Blocks execution until dismissed
+ * 
+ * - Auto-wraps long text
+ * 
+ * @param text Error message to display (ASCII). Supports newlines with '\n'.
+ *             Max ~2000 chars (libctru limit). UTF-8 not supported.
+ * 
+ * @note Requires error service (automatically initialized)
+ * @warning Avoid special characters - use basic ASCII only
+ */
+void UTILS_popupError(const char* text);
+
+/**
+ * @brief Sends a notification to HOME Menu
+ * 
+ * #### Features:
+ * 
+ * - Shows in Notifications (green LED blinks)
+ * 
+ * - Appears under "Nintendo 3DS" sender
+ * 
+ * - No icon/image attached
+ * 
+ * - Automatically encodes to UTF-16
+ * 
+ * @param titleText Notification title (ASCII, max 32 chars)
+ * @param descText Notification body (ASCII, max 200 chars)
+ * 
+ * @note Requires news service (auto-init/shutdown)
+ * @warning Title truncates at 32 chars, description at 200
+ */
+void UTILS_sendNotification(const char* titleText, const char* descText);
 
 #endif

@@ -116,3 +116,36 @@ char* UTILS_swkbdGetInputText() { // Return char pointer
 
     return text;
 }
+
+void UTILS_popupError(const char* text) {
+    errorConf errorCtx;
+    
+    // Initialize error context
+    errorInit(&errorCtx, ERROR_TEXT, CFG_LANGUAGE_EN);
+    
+    // Configure error text (newlines will work in ERROR_TEXT mode)
+    errorText(&errorCtx, text);
+    
+    // Disable home button
+    errorCtx.homeButton = false;
+    
+    // Display the error (blocks until dismissed)
+    errorDisp(&errorCtx);
+}
+
+void UTILS_sendNotification(const char* titleText, const char* descText) {
+    // Initialize News
+    newsInit();
+
+    // Convert strings to UTF-16
+    u16 title[128] = {0};
+    u16 message[1024] = {0};
+    
+    // Convert ASCII to UTF-16
+    for (size_t i = 0; i < strlen(titleText); i++) title[i] = titleText[i];
+    for (size_t i = 0; i < strlen(descText); i++)  message[i] = descText[i];
+
+    // Create notification
+    NEWS_AddNotification(title, strlen(titleText), message, strlen(descText), NULL, 0, false);
+    newsExit();
+}

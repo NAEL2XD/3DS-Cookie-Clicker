@@ -29,6 +29,16 @@ int main() {
 
     mkdir("sdmc:/Nael2xd", 0777);
     mkdir("sdmc:/Nael2xd/CookieClicker", 0777);
+
+    FILE* f = fopen("sdmc:/Nael2xd/CookieClicker/save.txt", "r");
+    if (!f) {
+        UTILS_sendNotification("Welcome to Cookie Clicker v0.3.0",
+            "Welcome to my own made cookie clicker, ~Where gaining cookies gets way too addictive.~\nWhy do i see this? The reason you're seeing this is because you did not have save file in\n\nsdmc:/Nael2xd/CookieClicker/save.txt\n\n"
+            "Spend some cookies on products, see your stats on bottom right, and try to gain as many cookies as possible. Just don't spend way too much time on it :`)\n\n"
+            "Have fun in cookie clicker, the game is always being updated and you can check back for updates on Universal Updater\n\n"
+            "Source Code: https://github.com/NAEL2XD/3DS-Cookie-Clicker"
+        );
+    }
     while (aptMainLoop()) {
         hidScanInput();
         kDown = hidKeysDown();

@@ -138,6 +138,7 @@ void game_init() {
     unsigned char checksumCheck = 0;
     const char* csPath = "sdmc:/Nael2xd/CookieClicker/checksum.txt";
     FILE *c = fopen(csPath, "rb");
+    if (!c) goto corrupt;
     fread(&checksumCheck, sizeof(checksumCheck), 1, c);
     fclose(c);
 
@@ -146,16 +147,25 @@ void game_init() {
         fread(&save, sizeof(SaveData), 1, file);
         fclose(file);
     } else { // Doesn't match (corrupted!)
+        corrupt:
         remove(SAVE_PATH);
         remove(csPath);
+
+        UTILS_popupError(
+            "Corrupted save data found!\n\n"  // Title with newlines
+            "A corrupted save data has been found\nand has been deleted to avoid any\nserious exploits and shenanigans.\n\n"
+            "Sorry, you will have to do\nthe whole work of your progress\nALL OVER AGAIN, just don't try to do\nthat exploit again, or else\nit'll happen again! :`D.\n\n- Nael2xd" // Description
+        );
     }
 }
 
-int unlocks = -1;
-float finalSize = 0;
-u64 runningTime;
-u64 oldGTime = 0; // For stats.time
+C2D_Text text;
+int      unlocks = -1;
+float    finalSize = 0;
+u64      runningTime;
+u64      oldGTime = 0; // For stats.time
 bool game_updateTOP() {
+    C2D_TextBufClear(d);
     runningTime = UTILS_getRunningTime();
     if (oldGTime == 0) oldGTime = runningTime;
 
@@ -248,13 +258,23 @@ bool game_updateTOP() {
                 unlocks++;
             }
 
+            char cost[32];
+            snprintf(cost, sizeof(cost), "%d", (int)save.shopProps[i].price);
+            char have[32];
+            snprintf(have, sizeof(have), "%d", (int)save.shopProps[i].own);
+            
             // Draw the things.
             C2D_DrawImageAtRotated(game.sprites.productInfo, 0, 30 + (31 * productSpawn), 0, UTILS_angleToRadians(180), NULL, 2, 1.25);
             C2D_DrawImageAt(save.shopProps[i].img, 2, 19 + (31 * productSpawn), 0, NULL, 0.75, 0.9);
             C2D_DrawImageAt(game.sprites.smallCookie, 21, 32.5 + (31 * productSpawn), 0, NULL, 0.175, 0.175);
-            
-            char cost[32];
-            snprintf(cost, sizeof(cost), "%d", (int)save.shopProps[i].price);
+
+            // Calculate text width
+            C2D_TextFontParse(&text, game.fonts.vcr, d, have);
+            C2D_TextOptimize(&text);
+        
+            float xPos = 102 - (text.width * .875);
+
+            UTILS_quickRenderText(have, xPos, 17 + (31 * productSpawn), C2D_Color32(150, 75, 0, 80), 0.8, game.fonts.vcr);
             UTILS_quickRenderText(cost, 31, 31 + (31 * productSpawn), unlocked ? game.green : game.red, 0.35, NULL);
             UTILS_quickRenderText(save.shopProps[i].name, 21, 18 + (31 * productSpawn), game.black, 0.5, NULL);
 
@@ -302,8 +322,6 @@ bool game_updateBOTTOM() {
             }
         
             // Calculate text width
-            C2D_Text text;
-            C2D_TextBufClear(d);
             C2D_TextFontParse(&text, game.fonts.vcr, d, var);
             C2D_TextOptimize(&text);
         

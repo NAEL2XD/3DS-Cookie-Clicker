@@ -6,7 +6,6 @@
 
 /**
     Initializes `UTILS`, giving you useful functions.
-    You can rather use the other functions to initialize but it's not recommended to use since it can make other options far off.
 **/
 void UTILS_Init();
 
@@ -78,5 +77,11 @@ bool UTILS_isTouchingImage(C2D_Image img, float x, float y, float size);
     @return `true` if it collides and is touching the hitbox, `false` otherwise.
 **/
 bool UTILS_isTouchingHitbox(float x, float y, float width, float height);
+
+/**
+    @brief Reads the input text from user and returns the char result.
+    @return Char String with text inputted to user.
+**/
+char* UTILS_swkbdGetInputText();
 
 #endif

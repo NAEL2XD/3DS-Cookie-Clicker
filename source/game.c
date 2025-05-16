@@ -3,7 +3,7 @@
 #include "utils.h"
 #include "main.h"
 
-#define MAX_PRODUCTS 2
+#define MAX_PRODUCTS 3
 #define SAVE_PATH "sdmc:/Nael2xd/CookieClicker/save.txt"
 
 typedef struct {
@@ -59,11 +59,6 @@ typedef struct {
 
     C2D_Image img;
 } ShopItem;
-ShopItem shopProps[MAX_PRODUCTS] = {
-    // Name,    Price, Multiply, Unlocked, Owns, CPS Increment
-    {"Cursor",  10,    1.1,      false,    0,   0.1},
-    {"Grandma", 50,    1.05,     false,    0,   1}
-};
 
 // Add a variable in, and it'll be automatically saved!
 // If you're adding an array, you will need to modify some of the code! :p  -Nael
@@ -113,8 +108,9 @@ void game_init() {
     game.onShop       = false;
     game.shopChoice   = 0;
     ShopItem initialShopProps[MAX_PRODUCTS] = {
-        {"Cursor", 10, 1.1, false, 0, 0.1},
-        {"Grandma", 50, 1.05, false, 0, 1}
+        {"Cursor",  10,  1.1,  false, 0, 0.1},
+        {"Grandma", 50,  1.05, false, 0, 1},
+        {"Farm",    500, 1.01, false, 0, 8}
     };
     memcpy(save.shopProps, initialShopProps, sizeof(initialShopProps));
 
@@ -147,9 +143,7 @@ void game_init() {
 
     if (checksum == checksumCheck) { // Matches
         FILE *file = fopen(SAVE_PATH, "rb");
-        if (file != NULL) {
-            fread(&save, sizeof(SaveData), 1, file);
-        }
+        fread(&save, sizeof(SaveData), 1, file);
         fclose(file);
     } else { // Doesn't match (corrupted!)
         remove(SAVE_PATH);
@@ -269,9 +263,9 @@ bool game_updateTOP() {
         }
     }
 
-    if (runningTime - oldGTime > 1000) {
+    while (runningTime - oldGTime > 1000) {
         save.stats.time++;
-        oldGTime = runningTime;
+        oldGTime += 1000;
     }
 
     UTILS_quickRenderText("Press [START] to exit.", -1, 215, C2D_Color32(255, 255, 255, 100), 0.75, NULL);
@@ -367,7 +361,7 @@ bool game_updateBOTTOM() {
     
     char gs[6];
     snprintf(gs, sizeof(gs), "%s", game.onStats ? "Game" : "Stats");
-    C2D_DrawRectSolid(238, 203, 0, 90, 90, C2D_Color32(255, 255, 255, 255));
+    C2D_DrawRectSolid(238, 203, 0, 90, 90, game.white);
     C2D_DrawRectSolid(240, 205, 0, 90, 90, C2D_Color32(0,   0,   0,   255));
     UTILS_quickRenderText(gs, 250 - (4 * game.onStats), 208, game.white, 1, NULL);
     

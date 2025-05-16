@@ -5,6 +5,8 @@
 #include "main.h"
 #include "game.h"
 
+bool debugCPU = false;
+
 int state = 1;
 u32 kDown = 0;
 
@@ -27,7 +29,6 @@ int main() {
 
     mkdir("sdmc:/Nael2xd", 0777);
     mkdir("sdmc:/Nael2xd/CookieClicker", 0777);
-    
     while (aptMainLoop()) {
         hidScanInput();
         kDown = hidKeysDown();
@@ -44,9 +45,16 @@ int main() {
                     break;
             }
 
+            if (i == 1 && debugCPU) {
+                char sex[69];
+                snprintf(sex, sizeof(sex), "CPU: %5.2f%%  GPU:%5.2f%%  BUF:%5.2f%%\n", C3D_GetProcessingTime()*6, C3D_GetDrawingTime()*6, C3D_GetCmdBufUsage()*100);
+                UTILS_quickRenderText(sex, -1, 0, C2D_Color32(255, 255, 255, 127), 0.5, NULL);
+            }
+
             if (exit) break;
         }
         if (exit) break;
+
         C3D_FrameEnd(0);
     }
 

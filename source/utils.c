@@ -25,7 +25,7 @@ void initBeforeProcess() {
     // If some are NULL, set their default value.
     defaultFont = C2D_FontLoadSystem(CFG_REGION_USA);
     g_staticBuf = C2D_TextBufNew(4096);
-    borderColor = C2D_Color32(0,   0,   0,  0xAA);
+    borderColor = C2D_Color32(0,   0,   0,   170);
     textColor   = C2D_Color32(255, 255, 255, 255);
     
     // TIME
@@ -44,8 +44,6 @@ void UTILS_Init() {
 }
 
 void UTILS_renderBorderText(const char *text, float x, float y, float borderSize, float size, C2D_Font font) {
-    initBeforeProcess();
-    
     // Clear and Parse to make text work.
     C2D_TextBufClear(g_staticBuf);
     C2D_TextFontParse(&renderText, font ? font : defaultFont, g_staticBuf, text);
@@ -64,8 +62,6 @@ void UTILS_renderBorderText(const char *text, float x, float y, float borderSize
 }
 
 void UTILS_quickRenderText(const char *text, float x, float y, u32 col, float size, C2D_Font font) {
-    initBeforeProcess();
-    
     // Clear and Parse to make text work.
     C2D_TextBufClear(g_staticBuf);
     C2D_TextFontParse(&renderText, font ? font : defaultFont, g_staticBuf, text);
@@ -82,15 +78,10 @@ void UTILS_quickRenderText(const char *text, float x, float y, u32 col, float si
 }
 
 u64 UTILS_getRunningTime() {
-    initBeforeProcess();
-
-    u64 newTime   = osGetTime();
-    return newTime - oldTime;
+    return osGetTime() - oldTime;
 }
 
 C2D_Image UTILS_loadImage(char *file) {
-    initBeforeProcess();
-
     C2D_SpriteSheet spriteSheet = C2D_SpriteSheetLoad(file);
     if (!spriteSheet) {
         printf("Failed to load sprite sheet: %s\n", file);
@@ -100,8 +91,6 @@ C2D_Image UTILS_loadImage(char *file) {
 }
 
 double UTILS_angleToRadians(double angle) {
-    initBeforeProcess();
-
     return angle * (M_PI / 180.0);
 }
 
@@ -113,4 +102,17 @@ bool UTILS_isTouchingImage(C2D_Image img, float x, float y, float size) {
 bool UTILS_isTouchingHitbox(float x, float y, float width, float height) {
     hidTouchRead(&touch);
     return (x < touch.px && x + width > touch.px && y < touch.py && y + height > touch.py);
+}
+
+char* UTILS_swkbdGetInputText() { // Return char pointer
+    static char text[512];
+    SwkbdState swkbd;
+
+    swkbdInit(&swkbd, SWKBD_TYPE_NORMAL, 1, -1);
+	swkbdSetFeatures(&swkbd, SWKBD_MULTILINE | SWKBD_DARKEN_TOP_SCREEN | SWKBD_FIXED_WIDTH);
+	swkbdSetHintText(&swkbd, "Enter Text Here.");
+    swkbdSetInitialText(&swkbd, text);
+	swkbdInputText(&swkbd, text, sizeof(text));
+
+    return text;
 }

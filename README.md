@@ -15,6 +15,9 @@ Currently in the works:
 - Sounds.
 - Minigames.
 - Golden Cookies.
+- Upgrades.
+- Codes.
+- Achievements (i guess).
 - Many More.
 
 Like this game? Give it a star on GitHub!

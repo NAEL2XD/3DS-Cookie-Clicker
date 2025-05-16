@@ -118,6 +118,7 @@ char* UTILS_swkbdGetInputText() { // Return char pointer
 }
 
 void UTILS_popupError(const char* text) {
+    // Use this inc
     errorConf errorCtx;
     
     // Initialize error context
@@ -128,6 +129,7 @@ void UTILS_popupError(const char* text) {
     
     // Disable home button
     errorCtx.homeButton = false;
+    errorCtx.errorCode = 20102; // piplup would love this apparently
     
     // Display the error (blocks until dismissed)
     errorDisp(&errorCtx);

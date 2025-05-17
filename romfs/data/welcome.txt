@@ -1,0 +1,27 @@
+Welcome to my own made
+cookie clicker.
+~Where gaining cookies gets way
+too addictive.~
+
+Why do you see this? The reason
+you're seeing this is because you
+do not have a save file in
+
+sdmc:/Nael2xd/CookieClicker/save.txt
+
+Spend some cookies on products,
+see your stats on bottom right,
+and try to gain as many cookies
+as possible. Just don't spend way
+too much time on it! :`)
+
+Have fun in cookie clicker!! The
+game is always being updated
+and you can check back for
+updates on Universal Updater!
+Enjoy!!
+
+Source Code:
+https://github.com/NAEL2XD/3DS-Cookie-Clicker
+
+- Nael2xd

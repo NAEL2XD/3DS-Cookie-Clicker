@@ -132,20 +132,13 @@ void game_init() {
 
     FILE *fp = fopen(SAVE_PATH, "rb");
     if (!fp) {
-        UTILS_sendNotification("Welcome to Cookie Clicker.",
-            "Welcome to my own made\ncookie clicker.\n~Where gaining cookies gets way\ntoo addictive.~\n\nWhy do you see this? The "
-            "reason\nyou're seeing this is because you\ndo not have a save file in\n\nsdmc:/Nael2xd/CookieClicker/save.txt\n\n"
-            "Spend some cookies on products, see your stats on bottom right,\nand try to gain as many cookies\nas possible. "
-            "Just don't spend way\ntoo much time on it! :`)\n\nHave fun in cookie clicker!! The\ngame is always being updated\nand you "
-            "can check back for\nupdates on Universal Updater!\nEnjoy!!\n\nSource Code:\nhttps://github.com/NAEL2XD/\n3DS-Cookie-Clicker\n\n- Nael2xd"
-        );
+        UTILS_sendNotification("Welcome to Cookie Clicker.", UTILS_getContentFromFile("romfs:/data/release.txt"));
         return; // If file doesn't exist, return to stop the other functions.
     }
     unsigned char checksum = 0;
     while (!feof(fp) && !ferror(fp)) {
         checksum ^= fgetc(fp);
     }
-    fclose(fp);
 
     unsigned char checksumCheck = 0;
     const char* csPath = "sdmc:/Nael2xd/CookieClicker/checksum.txt";
@@ -162,26 +155,16 @@ void game_init() {
         if (strcmp(save.ver, GAME_VER) != 0) {
             save.ver = GAME_VER;
 
-            char content[2048] = {0}; // Initialize as char array
-            FILE* f = fopen("romfs:/release.txt", "r");
-            size_t bytes_read = fread(content, 1, sizeof(content)-1, f); // Leave space for null terminator
-            content[bytes_read] = '\0'; // Null-terminate
-            fclose(f);
-
             char vNum[32];
             snprintf(vNum, sizeof(vNum), "Cookie Clicker %s", GAME_VER);
-            UTILS_sendNotification(vNum, content);
+            UTILS_sendNotification(vNum, UTILS_getContentFromFile("romfs:/data/release.txt"));
         }
     } else { // Doesn't match (corrupted!)
         corrupt:
         remove(SAVE_PATH);
         remove(csPath);
 
-        UTILS_popupError(
-            "Corrupted save data found!\n\n"  // Title with newlines
-            "A corrupted save data has been found\nand has been deleted to avoid any\nserious exploits and shenanigans.\n\n"
-            "Sorry, you will have to do\nthe whole work of your progress\nALL OVER AGAIN, just don't try to do\nthat exploit again, or else\nit'll happen again! :`D.\n\n- Nael2xd" // Description
-        );
+        UTILS_popupError(UTILS_getContentFromFile("romfs:/data/corrupted.txt"));
     }
 }
 

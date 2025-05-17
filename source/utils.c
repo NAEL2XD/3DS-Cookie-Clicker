@@ -151,3 +151,18 @@ void UTILS_sendNotification(const char* titleText, const char* descText) {
     NEWS_AddNotification(title, strlen(titleText) + 2, message, strlen(descText) + 2, NULL, 0, false);
     newsExit();
 }
+
+const char* UTILS_getContentFromFile(const char* filePath) {
+    static char content[8192] = {0}; // Static buffer persists after return
+    FILE* f = fopen(filePath, "r");
+    if (!f) {
+        printf("File read failed: %s\n", filePath);
+        content[0] = '\0'; // Ensure empty string
+        return content;
+    }
+
+    size_t bytes_read = fread(content, 1, sizeof(content)-1, f);
+    content[bytes_read] = '\0'; // Null-terminate
+    fclose(f);
+    return content;
+}

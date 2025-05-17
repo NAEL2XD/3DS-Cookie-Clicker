@@ -118,10 +118,10 @@ void game_init() {
     memcpy(save.shopProps, initialShopProps, sizeof(initialShopProps));
 
     // Initialize Colors
-    game.red          = C2D_Color32(255,   0, 0,   255);
-    game.green        = C2D_Color32(0,   255, 0,   255);
-    game.black        = C2D_Color32(0,   0,   0,   255);
-    game.white        = C2D_Color32(255, 255, 255, 255);
+    game.red          = 0xFFFF0000;
+    game.green        = 0xFF00FF00;
+    game.black        = 0xFF000000;
+    game.white        = 0xFFFFFFFF;
     game.upgradeColor = 0;
 
     // Initialize Images

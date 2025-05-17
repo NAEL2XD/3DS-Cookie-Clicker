@@ -48,7 +48,7 @@ int main() {
             if (i == 1 && debugCPU) {
                 char sex[69];
                 snprintf(sex, sizeof(sex), "CPU: %5.2f%%  GPU:%5.2f%%  BUF:%5.2f%%\n", C3D_GetProcessingTime()*6, C3D_GetDrawingTime()*6, C3D_GetCmdBufUsage()*100);
-                UTILS_quickRenderText(sex, -1, 0, C2D_Color32(255, 255, 255, 127), 0.5, NULL);
+                UTILS_quickRenderText(sex, -1, 0, 0x7fffffff, 0.5, NULL);
             }
 
             if (exit) break;

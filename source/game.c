@@ -132,7 +132,7 @@ void game_init() {
 
     FILE *fp = fopen(SAVE_PATH, "rb");
     if (!fp) {
-        UTILS_sendNotification("Welcome to Cookie Clicker.", UTILS_getContentFromFile("romfs:/data/release.txt"));
+        UTILS_sendNotification("Welcome to Cookie Clicker.", UTILS_getContentFromFile("romfs:/data/welcome.txt"));
         return; // If file doesn't exist, return to stop the other functions.
     }
     unsigned char checksum = 0;

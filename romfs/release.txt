@@ -1,16 +1,16 @@
-Welcome to Cookie Clicker v0.4.0!
+Welcome to Cookie Clicker v0.3.1!
 
-In version v0.4.0, there are
+In version v0.3.1, there are
 new additions, fixes, or even
 some stuff that i've done!
 
-Here's what's new in v0.4.0:
-■ Added Notifications
-■ Added Error Popup
-■ Added Easter Egg from the
+Here's what's new in v0.3.1:
+- Added Notifications
+- Added Error Popup
+- Added Easter Egg from the
 error popup, do you notice it?
-■ Add Product Own Counter
-■ Fixed a bug where checksum
+- Add Product Own Counter
+- Fixed a bug where checksum
 files doesn't exist causing
 a crash.
 

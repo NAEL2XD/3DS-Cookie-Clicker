@@ -159,7 +159,7 @@ void game_init() {
         fread(&save, sizeof(SaveData), 1, file);
         fclose(file);
 
-        if (strcmp(save.ver, GAME_VER) != 0) {
+        if (strcmp(save.ver, GAME_VER) == 0) {
             save.ver = GAME_VER;
 
             char content[2048] = {0}; // Initialize as char array

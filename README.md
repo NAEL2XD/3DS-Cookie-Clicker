@@ -42,3 +42,8 @@ Like this game? Give it a star on GitHub!
 <kbd>A</kbd>: Buy the current product.
 
 <kbd>DPAD RIGHT</kbd>: Exit shop.
+
+# CREDITS.
+
+- [Orteil](https://orteil.dashnet.org/) for cookie clicker.
+- [NotifyMii](https://github.com/Ryuzaki-MrL/NotifyMii) for notification code.

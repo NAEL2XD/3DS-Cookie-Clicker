@@ -5,6 +5,7 @@
 
 #define MAX_PRODUCTS 3
 #define SAVE_PATH "sdmc:/Nael2xd/CookieClicker/save.txt"
+#define GAME_VER "v0.3.1"
 
 typedef struct {
     char text[16]; // Text to display
@@ -67,6 +68,7 @@ typedef struct {
 	float cookiePerPress;
     float cookiePerSecond;
     bool shopUnlocked;
+    const char* ver;
 
     struct {
         int   clicks;
@@ -91,12 +93,13 @@ void game_init() {
     d = C2D_TextBufNew(4096);
 
     // Initialize Variables
-    save.cookies  = 0;
+    save.cookies = 0;
     game.textSize = 0;
     save.cookiePerPress = 1.0;
     save.cookiePerSecond = 0.0;
     game.onStats = false;
     game.fonts.vcr = C2D_FontLoad("romfs:/fonts/vcr.bcfnt");
+    save.ver = GAME_VER;
 
     // Initialize Stats
     save.stats.clicks = 0;
@@ -155,6 +158,20 @@ void game_init() {
         FILE *file = fopen(SAVE_PATH, "rb");
         fread(&save, sizeof(SaveData), 1, file);
         fclose(file);
+
+        if (strcmp(save.ver, GAME_VER) != 0) {
+            save.ver = GAME_VER;
+
+            char content[2048] = {0}; // Initialize as char array
+            FILE* f = fopen("romfs:/release.txt", "r");
+            size_t bytes_read = fread(content, 1, sizeof(content)-1, f); // Leave space for null terminator
+            content[bytes_read] = '\0'; // Null-terminate
+            fclose(f);
+
+            char vNum[32];
+            snprintf(vNum, sizeof(vNum), "Cookie Clicker %s", GAME_VER);
+            UTILS_sendNotification(vNum, content);
+        }
     } else { // Doesn't match (corrupted!)
         corrupt:
         remove(SAVE_PATH);

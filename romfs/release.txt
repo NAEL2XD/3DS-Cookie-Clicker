@@ -1,0 +1,28 @@
+Welcome to Cookie Clicker v0.4.0!
+
+In version v0.4.0, there are
+new additions, fixes, or even
+some stuff that i've done!
+
+Here's what's new in v0.4.0:
+■ Added Notifications
+■ Added Error Popup
+■ Added Easter Egg from the
+error popup, do you notice it?
+■ Add Product Own Counter
+■ Fixed a bug where checksum
+files doesn't exist causing
+a crash.
+
+The game is still in
+developement, so most of
+the ui, product, and many
+other things will be subjected
+to change!
+
+Thank you for reading this,
+and have a good clicking day!!
+~Where gaining cookies gets
+way too ADDICTIVE!~
+
+- Nael2xd

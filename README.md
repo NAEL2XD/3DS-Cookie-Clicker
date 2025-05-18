@@ -11,6 +11,7 @@ Currently, those are supported:
 - Saving, loading.
 - Notifications.
 - Errors.
+- Menu.
 
 Currently in the works:
 - More products.

@@ -4,11 +4,15 @@
 #include "utils.h"
 #include "main.h"
 #include "game.h"
-
-bool debugCPU = false;
+#include "menu.h"
 
 int state = 1;
+int oldSt = 1;
 u32 kDown = 0;
+
+void switchState(int state2Switch) {
+    state = state2Switch;
+}
 
 int main() {
     gfxInitDefault();
@@ -38,22 +42,24 @@ int main() {
         for (int i = 0; i < 2; i++) {
             C2D_TargetClear(pos[i], C2D_Color32(60, 60, 60, 0xFF));
             C2D_SceneBegin(pos[i]);
-
+            
             switch (state) {
-                case 1:
-                    exit = (i == 0) ? game_updateTOP() : game_updateBOTTOM();
+                case 1: // Game
+                    exit = i == 0 ? game_updateTOP() : game_updateBOTTOM();
                     break;
-            }
-
-            if (i == 1 && debugCPU) {
-                char sex[69];
-                snprintf(sex, sizeof(sex), "CPU: %5.2f%%  GPU:%5.2f%%  BUF:%5.2f%%\n", C3D_GetProcessingTime()*6, C3D_GetDrawingTime()*6, C3D_GetCmdBufUsage()*100);
-                UTILS_quickRenderText(sex, -1, 0, 0x7fffffff, 0.5, NULL);
+                case 2: // Menu
+                if (oldSt != state) menu_init();
+                    exit = i == 0 ? menu_updateTOP() : menu_updateBOTTOM();
+                    break;
             }
 
             if (exit) break;
         }
         if (exit) break;
+
+        if (oldSt != state) {
+            oldSt = state;
+        }
 
         C3D_FrameEnd(0);
     }

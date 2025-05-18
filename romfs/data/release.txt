@@ -1,28 +1,30 @@
-Welcome to Cookie Clicker v0.3.1!
+Welcome to Cookie Clicker v0.4.0!
 
-In version v0.3.1, there are
-new additions, fixes, or even
-some stuff that i've done!
+In v0.4.0, there are very much
+new things that has been
+released and we're happy to
+announce it to everyone!!
 
-Here's what's new in v0.3.1:
-- Added Notifications
-- Added Error Popup
-- Added Easter Egg from the
-error popup, do you notice it?
-- Add Product Own Counter
-- Fixed a bug where checksum
-files doesn't exist causing
-a crash.
+The changelog:
+- Added menu button
+- Moved Stats in menu.
+- Pressing [START] will no
+longer quit, you will have
+to use the menu button to do
+that.
+- Stats is locked, it's still
+in the source but it's not
+viewable right now.
+- Switching states is now
+a thing, for now.
+- Nothing more is released.
+- Moved game.c structs to
+game.h
 
-The game is still in
-developement, so most of
-the ui, product, and many
-other things will be subjected
-to change!
-
-Thank you for reading this,
-and have a good clicking day!!
+Thank you for reading this
+release note and have a happy
+clicking day.
 ~Where gaining cookies gets
-way too ADDICTIVE!~
+way too addictive!~
 
 - Nael2xd

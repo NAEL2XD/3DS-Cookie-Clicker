@@ -9,4 +9,6 @@
 extern int state;
 extern u32 kDown;
 
-#endif // MAIN_H
+void switchState(int state2Switch);
+
+#endif

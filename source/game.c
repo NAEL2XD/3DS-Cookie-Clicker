@@ -2,10 +2,9 @@
 #include <stdio.h>
 #include "utils.h"
 #include "main.h"
+#include "game.h"
 
-#define MAX_PRODUCTS 3
 #define SAVE_PATH "sdmc:/Nael2xd/CookieClicker/save.txt"
-#define GAME_VER "v0.3.1"
 
 typedef struct {
     char text[16]; // Text to display
@@ -16,68 +15,7 @@ typedef struct {
 SpawnedText spawnedText[50];
 int stCount = 0;
 
-typedef struct {
-    // Game Properties
-	float textSize;
-    bool  onStats;
-
-    // Color
-    u32 red;
-    u32 green;
-    u32 black;
-    u32 white;
-    float upgradeColor;
-
-    // Shop Properties
-    bool onShop;
-    int shopChoice;
-
-    struct {
-        C2D_Image cookie;
-        C2D_Image background;
-        C2D_Image productInfo;
-        C2D_Image smallCookie;
-    } sprites;
-
-    struct {
-        bool cookie;
-        bool statButton;
-    } touching;
-
-    struct {
-        C2D_Font vcr;
-    } fonts;
-} gameState;
 gameState game;
-
-typedef struct {
-    const char* name;
-    float price;
-    float multiplier;
-    bool unlocked;
-    int own;
-    float cpsInc;
-
-    C2D_Image img;
-} ShopItem;
-
-// Add a variable in, and it'll be automatically saved!
-// If you're adding an array, you will need to modify some of the code! :p  -Nael
-typedef struct {
-    float cookies;
-	float cookiePerPress;
-    float cookiePerSecond;
-    bool shopUnlocked;
-    const char* ver;
-
-    struct {
-        int   clicks;
-        float totals;
-        int   time;
-    } stats;
-
-    ShopItem shopProps[MAX_PRODUCTS];
-} SaveData;
 SaveData save;
 
 float updateCPS() {
@@ -88,9 +26,9 @@ float updateCPS() {
     return total;
 }
 
-C2D_TextBuf d;
+C2D_TextBuf duh;
 void game_init() {
-    d = C2D_TextBufNew(4096);
+    duh = C2D_TextBufNew(4096);
 
     // Initialize Variables
     save.cookies = 0;
@@ -174,7 +112,7 @@ float    finalSize = 0;
 u64      runningTime;
 u64      oldGTime = 0; // For stats.time
 bool game_updateTOP() {
-    C2D_TextBufClear(d);
+    C2D_TextBufClear(duh);
     runningTime = UTILS_getRunningTime();
     if (oldGTime == 0) oldGTime = runningTime;
 
@@ -183,30 +121,6 @@ bool game_updateTOP() {
         game.onShop = true;
     } else if ((kDown & KEY_DRIGHT) && game.onShop) {
         game.onShop = false;
-    }
-
-    if (kDown & KEY_START) {
-        for (int i = 0; i < MAX_PRODUCTS; i++) {
-            save.shopProps[i].img.tex = NULL; // Setting img tex to NULL so that if you relaunch it'll load image instead of doing nothing.
-        }
-
-        const char* n = SAVE_PATH;
-        FILE *file = fopen(n, "wb");
-        fwrite(&save, sizeof(SaveData), 1, file);
-        fclose(file);
-
-        FILE *fp = fopen(n, "rb");
-        unsigned char checksum = 0;
-        while (!feof(fp) && !ferror(fp)) {
-            checksum ^= fgetc(fp);
-        }
-        fclose(fp);
-
-        FILE *c = fopen("sdmc:/Nael2xd/CookieClicker/checksum.txt", "wb");
-        fwrite(&checksum, sizeof(checksum), 1, c);
-        fclose(c);
-
-        return true;
     }
 
     C2D_DrawImageAt(game.sprites.background, 0, 0, 0, NULL, 1, 1);
@@ -278,7 +192,7 @@ bool game_updateTOP() {
             C2D_DrawImageAt(game.sprites.smallCookie, 21, 32.5 + (31 * productSpawn), 0, NULL, 0.175, 0.175);
 
             // Calculate text width
-            C2D_TextFontParse(&text, game.fonts.vcr, d, have);
+            C2D_TextFontParse(&text, game.fonts.vcr, duh, have);
             C2D_TextOptimize(&text);
         
             float xPos = 102 - (text.width * .875);
@@ -297,7 +211,6 @@ bool game_updateTOP() {
         oldGTime += 1000;
     }
 
-    UTILS_quickRenderText("Press [START] to exit.", -1, 215, C2D_Color32(255, 255, 255, 100), 0.75, NULL);
     return false;
 }
 
@@ -307,40 +220,8 @@ typedef struct {
     bool  isInt;
 } statUI;
 bool game_updateBOTTOM() {
-    if (game.onStats) {
-        statUI blocks[3] = {
-            {"Cookie Clicks", save.stats.clicks, true},
-            {"Total Cookies", save.stats.totals, false},
-            {"Time Wasted",   save.stats.time,   true}
-        };
-
-        // Inside the if (game.onStats) block:
-        for (int i = 0; i < 3; i++) {
-            char var[24];
-            snprintf(var, sizeof(var), "%.1f", blocks[i].value);
-            if (blocks[i].isInt) {
-                snprintf(var, sizeof(var), "%i", (int)blocks[i].value);
-            }
+    if (game.onStats) { // Unused, but will be used later.
         
-            // Handle time formatting
-            if (strcmp(blocks[i].name, "Time Wasted") == 0) {
-                int t = (int)blocks[i].value;
-                int m = t / 60;
-                int s = t % 60;
-                snprintf(var, sizeof(var), "%02d:%02d", m, s);
-            }
-        
-            // Calculate text width
-            C2D_TextFontParse(&text, game.fonts.vcr, d, var);
-            C2D_TextOptimize(&text);
-        
-            // Right-align within the 306px wide background (x=6 to x=312)
-            float xPos = 306 - (text.width * 1.14); // 8px padding from right edge
-        
-            C2D_DrawRectSolid(6, 33 + (34 * i), 0, 307, 2, game.white);
-            UTILS_quickRenderText(blocks[i].name, 8, 10 + (34 * i), game.white, 0.8, NULL);
-            UTILS_quickRenderText(var, xPos, 2 + (34 * i), game.white, 1, game.fonts.vcr);
-        }
     } else {
         // Controls
         if (UTILS_isTouchingImage(game.sprites.cookie, 160 + (finalSize * 6) - 62, 128 + (finalSize * 6) - 65, finalSize + 1.33) && !game.touching.cookie) {
@@ -386,16 +267,45 @@ bool game_updateBOTTOM() {
         }
     }
     
-    char gs[6];
-    snprintf(gs, sizeof(gs), "%s", game.onStats ? "Game" : "Stats");
     C2D_DrawRectSolid(238, 203, 0, 90, 90, game.white);
     C2D_DrawRectSolid(240, 205, 0, 90, 90, C2D_Color32(0,   0,   0,   255));
-    UTILS_quickRenderText(gs, 250 - (4 * game.onStats), 208, game.white, 1, NULL);
+    UTILS_quickRenderText("Menu", 247, 208, game.white, 1, NULL);
     
     if (UTILS_isTouchingHitbox(238, 203, 90, 90) && !game.touching.statButton) {
-        game.onStats = !game.onStats;
+        //game.onStats = !game.onStats;
+        switchState(2);
     }
     game.touching.statButton = UTILS_isTouchingHitbox(235, 200, 90, 90);
     
     return false;
+}
+
+SaveData* game_getSave() {
+    return &save; // Return address of global 'save'
+}
+
+C2D_Font game_getVCRFont() {
+    return game.fonts.vcr;
+}
+
+void game_save() {
+    for (int i = 0; i < MAX_PRODUCTS; i++) {
+        save.shopProps[i].img.tex = NULL; // Setting img tex to NULL so that if you relaunch it'll load image instead of doing nothing.
+    }
+
+    const char* n = SAVE_PATH;
+    FILE *file = fopen(n, "wb");
+    fwrite(&save, sizeof(SaveData), 1, file);
+    fclose(file);
+
+    FILE *fp = fopen(n, "rb");
+    unsigned char checksum = 0;
+    while (!feof(fp) && !ferror(fp)) {
+        checksum ^= fgetc(fp);
+    }
+    fclose(fp);
+
+    FILE *c = fopen("sdmc:/Nael2xd/CookieClicker/checksum.txt", "wb");
+    fwrite(&checksum, sizeof(checksum), 1, c);
+    fclose(c);
 }
